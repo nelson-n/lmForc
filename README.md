@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# lmForc <a href='https://github.com/lucius-verus-fan/lmForc'><img src='logo/lmForc_hexSticker.png' align="right" height="200" /></a>
+# lmForc <a href='https://github.com/lucius-verus-fan/lmForc/blob/main/logo/lmForc_hexSticker.png'><img src='logo/lmForc_hexSticker.png' align="right" height="200" /></a>
 
 <!-- badges: start -->
 
