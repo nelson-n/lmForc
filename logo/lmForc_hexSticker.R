@@ -26,4 +26,5 @@ sticker(
   h_fill = "#faefdd",
   h_color = "#785130",
   white_around_sticker = TRUE,
-  filename="lmForc_hexSticker.png")
+  filename="lmForc_hexSticker.png"
+)
