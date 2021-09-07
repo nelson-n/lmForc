@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# lmForc
+# lmForc <a href='https://github.com/lucius-verus-fan/lmForc'><img src='logo/lmForc_hexSticker.png' align="right" height="142" /></a>
 
 <!-- badges: start -->
 
@@ -51,14 +51,12 @@ calculate the RMSE of the forecast.
 
 ``` r
 library(lmForc)
-
 forecast <- oos_realized_forc(
   lm_call = lm(y ~ x1 + x2, data),
   h_ahead = 2L,
   estimation_end = as.Date("2011-03-31"),
   time_vec = data$date
 )
-
 forecast
 #> h_ahead = 2 
 #> 
@@ -67,7 +65,6 @@ forecast
 #> 2 2011-06-30 2011-12-31 2.341664     2.11
 #> 3 2011-09-30 2012-03-31 3.415198     2.97
 #> 4 2011-12-31 2012-06-30 2.708308     0.99
-
 rmse(forecast)
 #> [1] 1.09634
 ```
