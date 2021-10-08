@@ -21,7 +21,7 @@ vector of the forecast.
 \examples{
 \dontrun{
 
-h_ahead(Forecast) <- c("2015-03-01", "2015-03-02", "2015-03-03")
+h_ahead(Forecast) <- 4L
 
 }
 

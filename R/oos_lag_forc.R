@@ -3,10 +3,14 @@
 #'
 #' \code{oos_lag_forc} takes a linear model call, an integer number of
 #' periods ahead to forecast, a period to end the initial coefficient estimation
-#' and begin forecasting, and an optional vector of time data associated with
-#' the linear model. Linear model data is lagged by \code{h_ahead} periods and
-#' the linear model is re-estimated with data up to \code{estimation_end} to
-#' create a lagged linear model. Coefficients are multiplied by present period
+#' and begin forecasting, an optional vector of time data associated with
+#' the linear model, and an optional integer number of past periods to estimate
+#' the linear model over. Linear model data is lagged by \code{h_ahead} periods 
+#' and the linear model is re-estimated with data up to \code{estimation_end} 
+#' minus the number of periods specified in \code{estimation_window} to create 
+#' a lagged linear model. If \code{estimation_window} is left \code{NULL} 
+#' then the linear model is estimated with all available data up to 
+#' \code{estimation_end}. Coefficients are multiplied by present period
 #' realized values of the covariates to create a forecast for \code{h_ahead}
 #' periods ahead. This process is iteratively repeated for each period after
 #' \code{estimation_end} with coefficients updating in each period. Returns an
@@ -22,6 +26,8 @@
 #'   coefficient estimation period and begin forecasting.
 #' @param time_vec Vector of any class that is equal in length to the data
 #'   in \code{lm_call}.
+#' @param estimation_window Integer representing the number of past periods 
+#'   that the linear model should be estimated over in each period. 
 #'
 #' @return \code{\link{Forecast}} object that contains the out-of-sample
 #'   forecast.
@@ -36,7 +42,8 @@
 #'   lm_call = lm(y ~ x1 + x2, data),
 #'   h_ahead = 4L,
 #'   estimation_end = as.Date("2010-01-01"),
-#'   time_vec = data$date
+#'   time_vec = data$date,
+#'   estimation_window = 20L
 #' )
 #'
 #' oos_lag_forc(
@@ -53,7 +60,8 @@
 
 #' @export
 
-oos_lag_forc <- function(lm_call, h_ahead, estimation_end, time_vec = NULL) {
+oos_lag_forc <- function(lm_call, h_ahead, estimation_end, time_vec = NULL,
+  estimation_window = NULL) {
 
   # Input validation.
   if (class(lm_call) != "lm") {
@@ -84,11 +92,13 @@ oos_lag_forc <- function(lm_call, h_ahead, estimation_end, time_vec = NULL) {
                 "\n  * Number of rows in lm_call data: ", nrow(lm_call$model),
                 "\n  * This may be caused by NAs in the data."))
   }
-
-  # Function to lag a vector n steps.
-  vector_lag <- function(vector, n) {
-    vector <- c(rep(NA, n), vector[1:(length(vector) - n)])
-    return(vector)
+  
+  if (is.null(estimation_window) == FALSE & is.integer(estimation_window) == FALSE) {
+    stop("* estimation_window must be an integer: estimation_end = 20L")
+  }
+  
+  if (is.null(estimation_window) == FALSE & is.integer(estimation_window) == FALSE) {
+    stop("* estimation_window must be of length one: estimation_end = 20L")
   }
 
   # Find OOS forecast period and prepare forecasting loop.
@@ -99,6 +109,30 @@ oos_lag_forc <- function(lm_call, h_ahead, estimation_end, time_vec = NULL) {
   if (is.null(time_vec) == FALSE) {
     estimation_end <- which(time_vec <= estimation_end)
     estimation_end <- estimation_end[length(estimation_end)]
+  }
+  
+  # Verify there is enough data before estimation_end to estimate the model.
+  if (is.null(estimation_window) == FALSE) {
+    if (h_ahead >= estimation_window) {
+      stop("* estimation_window must be larger than h_ahead to estimate the lagged model.")
+    }
+  } 
+
+  if (h_ahead >= estimation_end) {
+    stop(paste0("* Not enough data to estimate the lagged model in the initial estimation period.\n",
+                "  * Increase estimation_end or decrease h_ahead to allow for initial model estimation."))
+  }
+  
+  # Verify there is enough data after estimation_end to produce a forecast.
+  if (estimation_end > (nrow(lm_call$model) - h_ahead)) {
+    stop(paste0("* Not enough data after estimation_end to produce a forecast.\n",
+                "  * Decrease estimation_end, decrease h_ahead, or add additional observations (*these may be NA observations)."))
+  }
+  
+  # Function to lag a vector n steps.
+  vector_lag <- function(vector, n) {
+    vector <- c(rep(NA, n), vector[1:(length(vector) - n)])
+    return(vector)
   }
 
   oos_index <- estimation_end:(nrow(lm_call$model) - h_ahead)
@@ -119,7 +153,16 @@ oos_lag_forc <- function(lm_call, h_ahead, estimation_end, time_vec = NULL) {
     # Lag train_data by h_ahead.
     train_data[, 2:length(lm_call$coefficients)] <-
       sapply(train_data[, 2:length(lm_call$coefficients)], function(x) vector_lag(x, n = h_ahead))
-
+    
+    # Subset train_data by estimation_window parameter.
+    if (is.null(estimation_window) == FALSE) {
+      if ((index - estimation_window) < 1) {
+        train_data <- train_data[1:index, ]  
+      } else {
+        train_data <- train_data[(index - estimation_window):index, ] 
+      }
+    } 
+    
     train_lm   <- eval(lm_call$call)
     coefs      <- train_lm$coefficients
 

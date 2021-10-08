@@ -57,7 +57,8 @@ oos_realized_forc(
   lm_call = lm(y ~ x1 + x2, data),
   h_ahead = 2L,
   estimation_end = as.Date("2011-03-31"),
-  time_vec = data$date
+  time_vec = data$date,
+  estimation_window = NULL
 )
 
 ## -----------------------------------------------------------------------------
@@ -65,7 +66,8 @@ oos_lag_forc(
   lm_call = lm(y ~ x1 + x2, data),
   h_ahead = 2L,
   estimation_end = as.Date("2011-03-31"),
-  time_vec = data$date
+  time_vec = data$date,
+  estimation_window = NULL
 )
 
 ## -----------------------------------------------------------------------------
@@ -112,6 +114,31 @@ conditional_forc(
   lm_call = lm(y ~ x1 + x2, data),
   time_vec = data$date,
   x1_forecast, x2_forecast
+)
+
+## -----------------------------------------------------------------------------
+historical_mean_forc(
+  realized_vec = data$y,
+  h_ahead = 2L,
+  estimation_end = as.Date("2011-03-31"),
+  time_vec = data$date,
+  estimation_window = 4L
+)
+
+## -----------------------------------------------------------------------------
+random_walk_forc(
+  realized_vec = data$y,
+  h_ahead = 6L,
+  time_vec = data$date 
+)
+
+## -----------------------------------------------------------------------------
+autoreg_forc(
+  realized_vec = data$y,
+  h_ahead = 2L,
+  estimation_end = as.Date("2011-06-30"),
+  time_vec = data$date,
+  estimation_window = NULL
 )
 
 ## -----------------------------------------------------------------------------

@@ -4,7 +4,13 @@
 \alias{oos_lag_forc}
 \title{Out-of-sample lagged linear model forecast conditioned on realized values}
 \usage{
-oos_lag_forc(lm_call, h_ahead, estimation_end, time_vec = NULL)
+oos_lag_forc(
+  lm_call,
+  h_ahead,
+  estimation_end,
+  time_vec = NULL,
+  estimation_window = NULL
+)
 }
 \arguments{
 \item{lm_call}{Linear model call of the class lm.}
@@ -17,6 +23,9 @@ coefficient estimation period and begin forecasting.}
 
 \item{time_vec}{Vector of any class that is equal in length to the data
 in \code{lm_call}.}
+
+\item{estimation_window}{Integer representing the number of past periods
+that the linear model should be estimated over in each period.}
 }
 \value{
 \code{\link{Forecast}} object that contains the out-of-sample
@@ -25,10 +34,14 @@ forecast.
 \description{
 \code{oos_lag_forc} takes a linear model call, an integer number of
 periods ahead to forecast, a period to end the initial coefficient estimation
-and begin forecasting, and an optional vector of time data associated with
-the linear model. Linear model data is lagged by \code{h_ahead} periods and
-the linear model is re-estimated with data up to \code{estimation_end} to
-create a lagged linear model. Coefficients are multiplied by present period
+and begin forecasting, an optional vector of time data associated with
+the linear model, and an optional integer number of past periods to estimate
+the linear model over. Linear model data is lagged by \code{h_ahead} periods
+and the linear model is re-estimated with data up to \code{estimation_end}
+minus the number of periods specified in \code{estimation_window} to create
+a lagged linear model. If \code{estimation_window} is left \code{NULL}
+then the linear model is estimated with all available data up to
+\code{estimation_end}. Coefficients are multiplied by present period
 realized values of the covariates to create a forecast for \code{h_ahead}
 periods ahead. This process is iteratively repeated for each period after
 \code{estimation_end} with coefficients updating in each period. Returns an
@@ -44,7 +57,8 @@ oos_lag_forc(
   lm_call = lm(y ~ x1 + x2, data),
   h_ahead = 4L,
   estimation_end = as.Date("2010-01-01"),
-  time_vec = data$date
+  time_vec = data$date,
+  estimation_window = 20L
 )
 
 oos_lag_forc(

@@ -20,6 +20,8 @@ knitr::opts_chunk$set(
 library(lmForc)
 ```
 
+![](lmForc_logo.png){width=100%}
+
 ## Sections
 #### [Forecast Class]
 #### [is_forc]
@@ -27,6 +29,9 @@ library(lmForc)
 #### [oos_lag_forc]
 #### [oos_vintage_forc]
 #### [conditional_forc]
+#### [historical_mean_forc]
+#### [random_walk_forc]
+#### [autoreg_forc]
 #### [mse_weighted_forc]
 
 ## lmForc Motivation
@@ -217,22 +222,31 @@ linear forecast model fits the historical data.
 The `oos_realized_forc()` function produces an *h* period ahead out-of-sample
 forecast that is conditioned on realized values. The function takes a linear 
 model call, an integer number of periods ahead to forecast, a period to end the
-initial coefficient estimation and begin forecasting, and an optional vector of
-time data associated with the linear model. The linear model is originally
-estimated with data up to `estimation_end`. Coefficients are multiplied by
-realized values of the covariates `h_ahead` periods ahead to create an `h_ahead`
-period ahead forecast. This process is iteratively repeated for each period
-after `estimation_end` with coefficients updating in each period as more
-information would have become available to the forecaster.
+initial coefficient estimation and begin forecasting, an optional vector of
+time data associated with the linear model, and an optional integer number of
+past periods to estimate the linear model over. The linear model is originally
+estimated with data up to `estimation_end` minus the number of periods specified 
+in the `estimation_window` argument. For instance, if the linear model is being
+estimated on quarterly data and the `estimation_window` is set to `20L`, coefficients
+will be estimated using five years of data up to `estimation_end`. If 
+`estimation_window` is set to `NULL` then the linear model is estimated with all 
+available data up to `estimation_end`. Coefficients are multiplied by realized 
+values of the covariates `h_ahead` periods ahead to create an `h_ahead` period 
+ahead forecast. This process is iteratively repeated for each period after 
+`estimation_end` with coefficients updating in each period as more information 
+would have become available to the forecaster. In each period, coefficients are
+updated based on all available information if `estimation_window` is set to 
+`NULL`, or a rolling window of past periods if `estimation_window` is set to an
+integer value.
 
 In the sample *i*, for each period *p* greater than or equal to
 `estimation_end`, coefficients are updated as:
 
 $$
 Y_i = \beta_0 + \beta_1 X1_i + \beta_2 X2_i + \epsilon_i 
-\qquad \text{for all} \quad i \leq \text{p}
+\qquad \text{for all} \quad p-w \leq i \leq \text{p}
 $$
-And `h_ahead` *h* forecasts are estimated as:
+Where *w* is the `estimation_window`. `h_ahead` *h* forecasts are estimated as:
 
 $$
 forecast_{p+h} = \beta_0 + \beta_1 X1_{p+h} + \beta_2 X2_{p+h} \qquad
@@ -243,7 +257,8 @@ oos_realized_forc(
   lm_call = lm(y ~ x1 + x2, data),
   h_ahead = 2L,
   estimation_end = as.Date("2011-03-31"),
-  time_vec = data$date
+  time_vec = data$date,
+  estimation_window = NULL
 )
 ```
 
@@ -257,22 +272,29 @@ linear forecast model had it been conditioned on perfect information.
 The `oos_lag_forc()` function produces an *h* period ahead out-of-sample 
 forecast conditioned on present period values. The function takes a linear model
 call, an integer number of periods ahead to forecast, a period to end the
-initial coefficient estimation and begin forecasting, and an optional vector of 
-time data associated with the linear model. The linear model data is lagged by
+initial coefficient estimation and begin forecasting, an optional vector of 
+time data associated with the linear model, and an optional integer number of
+past periods to estimate the linear model over. The linear model data is lagged by
 `h_ahead` periods and the linear model is re-estimated with data up to
-`estimation_end` to create a lagged linear model. Coefficients are multiplied by 
-present period realized values of the covariates to create a forecast for
-`h_ahead` periods ahead. This process is iteratively repeated for each period
-after `estimation_end` with coefficients updating in each period.
+`estimation_end` minus the number of periods specified in the `estimation_window`
+argument to create a lagged linear model. If `estimation_window` is left `NULL` 
+then the linear model is estimated with all available lagged data up to 
+`estimation_end`. Coefficients are multiplied by present period realized values 
+of the covariates to create a forecast for `h_ahead` periods ahead. This process 
+is iteratively repeated for each period after `estimation_end` with coefficients 
+updating in each period as more information would have become available to the 
+forecaster. In each period, coefficients are updated based on all available 
+information if `estimation_window` is set to `NULL`, or a rolling window of past
+periods if `estimation_window` is set to an integer value.
 
 In the sample *i*, for each period *p* greater than or equal to
 `estimation_end`, coefficients are updated as:
 
 $$
 Y_i = \beta_0 + \beta_1 X1_{i-h} + \beta_2 X2_{i-h} + \epsilon_i 
-\qquad \text{for all} \quad i \leq \text{p}
+\qquad \text{for all} \quad p-w \leq i \leq \text{p}
 $$
-Where *h* is `h_ahead`. `h_ahead` forecasts are estimated as:
+Where *w* is the `estimation_window` and *h* is `h_ahead`. `h_ahead` forecasts are estimated as:
 
 $$
 forecast_{p+h} = \beta_0 + \beta_1 X1_{p} + \beta_2 X2_{p} \qquad
@@ -283,7 +305,8 @@ oos_lag_forc(
   lm_call = lm(y ~ x1 + x2, data),
   h_ahead = 2L,
   estimation_end = as.Date("2011-03-31"),
-  time_vec = data$date
+  time_vec = data$date,
+  estimation_window = NULL
 )
 ```
 
@@ -296,18 +319,23 @@ realized values or a forecast of the covariates.
 
 The `oos_vintage_forc()` function produces an out-of-sample forecast conditioned
 on *h* period ahead forecasts of the linear model covariates. The function takes
-a linear model call, a vector of time data associated with the linear model, and
-a vintage forecast for each covariate in the linear model. For each period in 
-the vintage forecasts, coefficients are updated based on information that would 
-have been available to the forecaster at the forecast origin. Coefficients are
-then multiplied by vintage forecast values.
+a linear model call, a vector of time data associated with the linear model,
+a vintage forecast for each covariate in the linear model, and an optional 
+integer number of past periods to estimate the linear model over. For each period 
+in the vintage forecasts, coefficients are updated based on information that would 
+have been available to the forecaster at the forecast origin. Coefficients are 
+estimated over information from the last `estimation_window` number of periods.
+If `estimation_window` is left `NULL` then coefficients are estimated over all
+of the information that would have been available to the forecaster. Coefficients
+are then multiplied by vintage forecast values to produce a replication of real
+time forecasts.
 
 In the sample *i*, for each period *p* in the vintage forecasts *VF1* and *VF2*,
 coefficients are updated as:
 
 $$
 Y_i = \beta_0 + \beta_1 X1_i + \beta_2 X2_i + \epsilon_i 
-\qquad \text{for all} \quad i \leq \text{p}
+\qquad \text{for all} \quad p-w \leq i \leq \text{p}
 $$
 
 And `h_ahead` *h* forecasts are estimated as:
@@ -411,20 +439,140 @@ a forecast made at a specific period in the past. Note that because we are
 forecasting into the future, `realized` is `NULL`. Also, because we are 
 forecasting a horizon of dates, `h_ahead` is `NULL`.
 
+## historical_mean_forc
+
+The `historical_mean_forc()` function produces an *h* period ahead forecast based
+on the historical mean of the series that is being forecasted. The function takes 
+a vector of realized values, an integer number of periods ahead to forecast, a period 
+to end the initial mean estimation and begin forecasting, an optional vector of time 
+data associated with the realized values, and an optional integer number of past 
+periods to estimate the mean over. The historical mean is originally calculated 
+with realized values up to `estimation_end` minus the number of periods specified 
+in `estimation_window`. If `estimation_window` is left `NULL` then the historical 
+mean is calculated with all available realized values up to `estimation_end`. In 
+each period the historical mean is set as the `h_ahead` period ahead forecast. 
+This process is iteratively repeated for each period after `estimation_end` with 
+the historical mean updating in each period as more information would have become 
+available to the forecaster. 
+
+In the sample *i*, for each period *p* greater than or equal to `estimation_end`, 
+`h_ahead` *h* forecasts are calculated as:
+
+$$ 
+forecast_{p+h} = \frac{1}{p-w} \sum_{i=p-w}^{p}{Y_i} \qquad
+$$
+
+Where *Y* is the series being forecasted and *w* is the `estimation_window`. 
+
+```{r}
+historical_mean_forc(
+  realized_vec = data$y,
+  h_ahead = 2L,
+  estimation_end = as.Date("2011-03-31"),
+  time_vec = data$date,
+  estimation_window = 4L
+)
+```
+
+`historical_mean_forc()` returns a historical mean forecast where the `h_ahead` 
+period ahead forecast is simply the historical mean or rolling window mean of the 
+series being forecasted. This replicates the historical mean forecast that would 
+have been produced in real time and can serve as a benchmark for other forecasting models.
+
+## random_walk_forc
+
+The `random_walk_forc()` function produces an *h* period ahead forecast based
+on the last realized value in the series that is being forecasted. The function
+takes a vector of realized values, an integer number of periods ahead to forecast, 
+and an optional vector of time data associated with the realized values. In each 
+period, the current period value of the `realized_vec` series is set as the 
+`h_ahead` period ahead forecast. 
+
+In the sample *i*, for each period *p*, `h_ahead` *h* forecasts are calculated as:
+
+$$ 
+forecast_{p+h} = Y_p
+$$
+
+Where *Y* is the series being forecasted.
+
+```{r}
+random_walk_forc(
+  realized_vec = data$y,
+  h_ahead = 6L,
+  time_vec = data$date 
+)
+```
+
+`random_walk_forc()` returns a random walk forecast where the `h_ahead`
+period ahead forecast is simply the present value of the series being forecasted. 
+This replicates the random walk forecast that a forecaster would have produced
+in real time and can serve as a benchmark for other forecasting models.
+
+## autoreg_forc
+
+The `autoreg_forc()` function produces an *h* period ahead forecast based
+on an autoregressive (AR) model. The function takes a vector of realized values, 
+an integer number of periods ahead to forecast, a period to end the initial model 
+estimation and begin forecasting, an optional vector of time data associated with 
+the realized values, and an optional integer number of past periods to estimate 
+the autoregressive model over. An AR(`h_ahead`) autoregressive model is estimated
+with realized values up to `estimation_end` minus the number of periods specified 
+in `estimation_window`. If `estimation_window` is left `NULL` then the 
+autoregressive model is calculated with all realized values up to `estimation_end`. 
+The AR(`h_ahead`) model is estimated by regressing a vector of realized values on 
+the same vector of realized values that has been lagged by `h_ahead` steps. The AR coefficient of this model is multiplied by the present period realized value to create a forecast for `h_ahead` periods ahead. This process is iteratively repeated for each period
+after `estimation_end` as more information would have become available to the
+forecaster. In each period, coefficients are updated based on all available 
+realized values if `estimation_window` is set to `NULL`, or a rolling window of 
+past periods if `estimation_window` is set to an integer value.
+
+In the sample *i*, for each period *p* greater than or equal to `estimation_end`, 
+coefficients are calculated as:
+
+$$
+Y_i = \beta_0 + \beta_1 Y_{i-h}
+\qquad \text{for all} \quad p-w \leq i \leq \text{p}
+$$
+Where *Y* is the series being forecasted, *w* is the `estimation_window`, 
+and *h* is `h_ahead`. `h_ahead` *h* forecasts are estimated as:
+
+$$
+forecast_{p+h} = \beta_0 + \beta_1 Y_p 
+$$
+
+```{r}
+autoreg_forc(
+  realized_vec = data$y,
+  h_ahead = 2L,
+  estimation_end = as.Date("2011-06-30"),
+  time_vec = data$date,
+  estimation_window = NULL
+)
+```
+
+`autoreg_forc()` returns an autoressive forecast based on information that would
+have been available at the forecast origin. This function replicates the autoregressive
+forecast that would have been produced in real time and can serve as a 
+benchmark for other forecasting models.
+
 ## mse_weighted_forc
 
 The `mse_weighted_forc()` function produces a weighted average of multiple 
 forecasts based on the recent performance of each forecast. The function takes
-two or more forecasts of the `Forecast` class, an evaluation window, and an error function. For each forecast period, the error function is used to calculate 
-forecast accuracy over the past `eval_window` number of periods. The forecast accuracy of each forecast is then used to weight forecasts based on a weighting function. In each period, weights are calculated and used to create a weighted average forecast. We 
-use a stylized example in which we create a weighted forecast of two forecasts: 
+two or more forecasts of the `Forecast` class, an evaluation window, and an 
+error function. For each forecast period, the error function is used to calculate 
+forecast accuracy over the past `eval_window` number of periods. The forecast 
+accuracy of each forecast is then used to weight forecasts based on a weighting function. 
+In each period, weights are calculated and used to create a weighted average forecast. 
+We use a stylized example in which we create a weighted forecast of two forecasts: 
 Y1 and Y2. 
 
 For all periods *p* in the *k* number of forecasts *Y*, weights *W* are calculated over the `eval_window` *e* as:
 
 $$
-W_n = \frac{1/MSE(Y_{kE})}{1/\sum_{k=1}^{n}MSE(Y_{kE})} \qquad \text{where} 
-\quad E = \{(p-e)..p\} 
+W_k = \frac{1/MSE(Y_{ki})}{1/\sum_{k=1}^{k}MSE(Y_{ki})} \qquad \text{where} 
+\quad i = p-e \leq i \leq p
 $$
 
 Forecasts are estimated as:

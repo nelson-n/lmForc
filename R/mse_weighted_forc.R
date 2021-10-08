@@ -107,12 +107,21 @@ mse_weighted_forc <- function(..., eval_window, errors = "mse", return_weights =
   # Find forecast names.
   argnames   <- sys.call()
   argnames   <- unlist(lapply(argnames[-1], as.character))
-  forc_names <- paste0(argnames[1:length(forecasts)], sep = " ")
+  forc_names <- paste0(argnames[1:length(forecasts)])
 
   # For each future value, find the latest origin in all forecasts.
   origin_vecs <- lapply(forecasts, function(x) x@origin)
   origin_vec  <- Reduce(pmax, origin_vecs)
 
+  # Check that max_eval_window has not been exceeded.
+  max_eval_window <- length(which(origin_vec[length(origin_vec)] >= forecasts[[1]]@future))
+  
+  if (eval_window > max_eval_window) {
+    stop(paste0("* eval_window exceeds the number of historical forecast observations.\n",
+                "  * the maximum eval_window is: ",
+                paste(max_eval_window)))
+  }
+  
   # Find OOS forecast period and prepare forecasting loop.
   forecast_periods <- which(origin_vec >= forecasts[[1]]@future[eval_window])
   eval_period <- length(forecast_periods)

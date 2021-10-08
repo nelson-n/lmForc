@@ -5,7 +5,7 @@
   
   <!-- README.md is generated from README.Rmd. Please edit that file -->
   
-  ```{r setup, include = FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -22,7 +22,7 @@ x2   <- c(10.03, 10.49, 10.85, 10.47, 9.09, 10.91, 8.68, 9.91, 7.87, 6.63)
 data <- data.frame(date, y, x1, x2)
 ```
 
-# lmForc <a href='https://github.com/lucius-verus-fan/lmForc/blob/main/logo/lmForc_hexSticker.png'><img src='logo/lmForc_hexSticker.png' align="right" height="200" /></a>
+# lmForc <a href='https://github.com/lucius-verus-fan/lmForc/blob/main/vignettes/logo/lmForc_hexSticker.png'><img src='/vignettes/logo/lmForc_hexSticker.png' align="right" height="200" /></a>
 <!-- badges: start -->
   ![R build status](https://github.com/lucius-verus-fan/lmForc/workflows/R-CMD-check/badge.svg)
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-success.svg)](https://lifecycle.r-lib.org/articles/stages.html)
@@ -53,19 +53,45 @@ remotes::install_github("lucius-verus-fan/lmForc")
 
 ## Example
 
-Produce an out-of-sample forecast conditioned on realized values, then calculate the RMSE of the forecast.
+Produce an out-of-sample forecast conditioned on realized values. This test 
+calculates linear model coefficients in each period based on information that 
+would have been available to the forecaster. These coefficients are then combined
+with future realized values to compute a forecast. Evaluates the performance of a 
+linear forecasting model had it been given perfect information.
 
 ```{r example, message=FALSE}
 library(lmForc)
 
-forecast <- oos_realized_forc(
+forecast1 <- oos_realized_forc(
   lm_call = lm(y ~ x1 + x2, data),
   h_ahead = 2L,
   estimation_end = as.Date("2011-03-31"),
   time_vec = data$date
 )
 
-forecast
+forecast1
+```
 
-rmse(forecast)
+Produce an out-of-sample forecast based on the historical mean. In each period 
+the historical mean of the series is calculated based on information that would
+have been available to the forecaster and set as the forecast. Replicates
+the historical mean forecast that would have been produced in real time and serves
+as a benchmark for other models.
+
+```{r example, message=FALSE}
+forecast2 <- historical_mean_forc(
+  realized_vec = data$y,
+  h_ahead = 2L,
+  estimation_end = as.Date("2011-03-31"),
+  time_vec = data$date
+)
+
+forecast2
+```
+
+Compare the performance of both models by calculating RMSE forecast error.
+
+```{r example, message=FALSE}
+rmse(forecast1)
+rmse(forecast2)
 ```

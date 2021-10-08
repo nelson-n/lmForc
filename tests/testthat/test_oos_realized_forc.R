@@ -42,6 +42,13 @@ pos7 <- train_lm$coefficients[[1]] +
   train_lm$coefficients[[2]] * data$x1[7 + h_ahead] +
   train_lm$coefficients[[3]] * data$x2[7 + h_ahead]
 
+# Test forecast for period 6 with evaluation_window set to 4. 
+train_lm2 <- lm(y ~ x1 + x2, lm_call$model[2:6, ])
+
+pos6 <- train_lm2$coefficients[[1]] +
+  train_lm2$coefficients[[2]] * data$x1[6 + h_ahead] +
+  train_lm2$coefficients[[3]] * data$x2[6 + h_ahead]
+
 #===============================================================================
 # True Evaluation
 #===============================================================================
@@ -51,6 +58,14 @@ forc <- oos_realized_forc(
   h_ahead = 2L,
   estimation_end = as.Date("2011-03-31"),
   time_vec = data$date
+)
+
+forc2 <- oos_realized_forc(
+  lm_call = lm(y ~ x1 + x2, data),
+  h_ahead = 2L,
+  estimation_end = as.Date("2011-03-31"),
+  time_vec = data$date,
+  estimation_window = 4L
 )
 
 #===============================================================================
@@ -68,6 +83,7 @@ test_that("Output values are correct.", {
   expect_equal(realized(forc), data$y[(nrow(data) - output_length + 1):nrow(data)])
   expect_equal(forc(forc)[1], pos5)
   expect_equal(forc(forc)[3], pos7)
+  expect_equal(forc(forc2)[2], pos6)
 })
 
 test_that("Output Forecast is the correct length.", {

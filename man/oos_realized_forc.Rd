@@ -4,7 +4,13 @@
 \alias{oos_realized_forc}
 \title{Out-of-sample linear model forecast conditioned on realized values}
 \usage{
-oos_realized_forc(lm_call, h_ahead, estimation_end, time_vec = NULL)
+oos_realized_forc(
+  lm_call,
+  h_ahead,
+  estimation_end,
+  time_vec = NULL,
+  estimation_window = NULL
+)
 }
 \arguments{
 \item{lm_call}{Linear model call of the class lm.}
@@ -17,6 +23,9 @@ coefficient estimation period and begin forecasting.}
 
 \item{time_vec}{Vector of any class that is equal in length to the data
 in \code{lm_call}.}
+
+\item{estimation_window}{Integer representing the number of past periods
+that the linear model should be estimated over in each period.}
 }
 \value{
 \code{\link{Forecast}} object that contains the out-of-sample
@@ -25,12 +34,16 @@ forecast.
 \description{
 \code{oos_realized_forc} takes a linear model call, an integer number of
 periods ahead to forecast, a period to end the initial coefficient estimation
-and begin forecasting, and an optional vector of time data associated with
-the linear model. The linear model is originally estimated with data up to
+and begin forecasting, an optional vector of time data associated with
+the linear model, and an optional integer number of past periods to estimate
+the linear model over. The linear model is originally estimated with data up
+to \code{estimation_end} minus the number of periods specified in
+\code{estimation_window}. If \code{estimation_window} is left \code{NULL}
+then the linear model is estimated with all available data up to
 \code{estimation_end}. Coefficients are multiplied by realized values of the
 covariates \code{h_ahead} periods ahead to create an \code{h_ahead} period
 ahead forecast. This process is iteratively repeated for each period after
-\code{estimation_end}  with coefficients updating in each period. Returns an
+\code{estimation_end} with coefficients updating in each period. Returns an
 out-of-sample forecast conditional on realized values that \strong{would not}
 have been available at the forecast origin. Tests the out-of-sample
 performance of a linear model had it been conditioned on perfect information.
@@ -42,7 +55,8 @@ oos_realized_forc(
   lm_call = lm(y ~ x1 + x2, data),
   h_ahead = 4L,
   estimation_end = as.Date("2010-01-01"),
-  time_vec = data$date
+  time_vec = data$date,
+  estimation_window = 20L
 )
 
 oos_realized_forc(

@@ -167,6 +167,39 @@ setMethod("show", "Forecast", function(object) {
 })
 
 #===============================================================================
+# Method for Subsetting Forecast Objects
+#===============================================================================
+
+#' Subset Forecast object.
+#'
+#' \code{[]} takes a \code{\link{Forecast}} object and subsets it.
+#'
+#' @param Forecast Forecast object.
+#' @param x ANY
+#' @param i ANY
+#' @param j ANY
+#' @param ... ANY
+#' @param drop ANY
+#'
+#' @return Subsetted \code{\link{Forecast}} object.
+#'
+#' @export
+
+setMethod("[", c("Forecast", "ANY", "ANY", "ANY"), 
+          
+  function(x, i, j, ..., drop = TRUE) {
+  
+    x@origin   <- x@origin[i]
+    x@future   <- x@future[i]
+    x@forecast <- x@forecast[i]
+    x@realized <- x@realized[i]
+  
+    validObject(x)
+    x
+  
+})
+
+#===============================================================================
 # Origin Setter/Getter Generics and Methods
 #===============================================================================
 

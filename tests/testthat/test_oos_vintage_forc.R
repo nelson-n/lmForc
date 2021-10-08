@@ -34,8 +34,8 @@ x2_forecast_vintage <- Forecast(
 #===============================================================================
 
 # Function inputs.
-lm_call = lm(y ~ x1 + x2, data)
-time_vec = data$date
+lm_call <- lm(y ~ x1 + x2, data)
+time_vec <- data$date
 
 # Test forecast for vintage forecast period 2.
 train_data <- lm_call$model[(which(time_vec <= origin(x2_forecast_vintage)[2])), ]
@@ -53,6 +53,16 @@ pos4 <- train_lm$coefficients[[1]] +
   train_lm$coefficients[[2]] * forc(x1_forecast_vintage)[4] +
   train_lm$coefficients[[3]] * forc(x2_forecast_vintage)[4]
 
+# Test forecast for vintage forecast period 4 with evaluation_window set to 4.
+train_data2 <- lm_call$model[(which(time_vec <= origin(x2_forecast_vintage)[4])), ]
+train_data2 <- lm_call$model[((nrow(train_data2) - 4):nrow(train_data2)), ]
+
+train_lm2   <- lm(y ~ x1 + x2, train_data2)
+
+pos4_eval4 <- train_lm2$coefficients[[1]] +
+  train_lm2$coefficients[[2]] * forc(x1_forecast_vintage)[4] +
+  train_lm2$coefficients[[3]] * forc(x2_forecast_vintage)[4]
+
 #===============================================================================
 # True Evaluation
 #===============================================================================
@@ -61,6 +71,13 @@ forc <- oos_vintage_forc(
   lm_call = lm(y ~ x1 + x2, data),
   time_vec = data$date,
   x1_forecast_vintage, x2_forecast_vintage
+)
+
+forc2 <- oos_vintage_forc(
+  lm_call = lm(y ~ x1 + x2, data),
+  time_vec = data$date,
+  x1_forecast_vintage, x2_forecast_vintage,
+  estimation_window = 4L
 )
 
 #===============================================================================

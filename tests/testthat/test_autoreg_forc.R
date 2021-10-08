@@ -18,60 +18,56 @@ data <- data.frame(date, y, x1, x2)
 #===============================================================================
 
 # Function inputs.
-lm_call = lm(y ~ x1 + x2, data)
+realized_vec = data$y
 h_ahead = 2L
-estimation_end = as.Date("2011-03-31")
+estimation_end = as.Date("2011-06-30")
 time_vec = data$date
+estimation_window = 4L
 
 # Test output forecast length.
 output_start  <- which(time_vec == estimation_end)
-output_end    <- nrow(lm_call$model) - h_ahead
+output_end    <- length(realized_vec) - h_ahead
 output_length <- length(output_start:output_end)
 
-# Manually lag covariates.
-x1[3:10] <- x1[1:8]
-x1[1:2]  <- NA
+# Test for forecast period 2 with h_ahead = 2L and estimation_window = 4L.
+train_data     <- realized_vec[3:7]
+lag_train_data <- train_data[1:3]
+train_data_lhs <- train_data[3:5]
+coefs <- lm(train_data_lhs ~ lag_train_data)$coefficients
+pos2_forc <- coefs[[1]] + coefs[[2]] * train_data[length(train_data)]
 
-x2[3:10] <- x2[1:8]
-x2[1:2]  <- NA
+# Function inputs.
+realized_vec = data$y
+h_ahead = 3L
+estimation_end = as.Date("2011-06-30")
+time_vec = data$date
+estimation_window = NULL
 
-train_data <- data.frame(date, y, x1, x2)
-
-# Test forecast for period 5.
-train_lm = lm(y ~ x1 + x2, train_data[1:5, ])
-
-pos5 <- train_lm$coefficients[[1]] + train_lm$coefficients[[2]] * data$x1[5] +
-  train_lm$coefficients[[3]] * data$x2[5]
-
-# Test forecast for period 7.
-train_lm = lm(y ~ x1 + x2, train_data[1:7, ])
-
-pos7 <- train_lm$coefficients[[1]] + train_lm$coefficients[[2]] * data$x1[7] +
-  train_lm$coefficients[[3]] * data$x2[7]
-
-# Test forecast for period 8 with estimation_window set to 4.
-train_lm2 = lm(y ~ x1 + x2, train_data[4:8, ])
-
-pos8 <- train_lm2$coefficients[[1]] + train_lm2$coefficients[[2]] * data$x1[8] +
-  train_lm2$coefficients[[3]] * data$x2[8]
+# Test for forecast period 2 with h_ahead = 3L and estimation_window = NULL.
+train_data     <- realized_vec[1:7]
+lag_train_data <- train_data[1:4]
+train_data_lhs <- train_data[4:7]
+coefs <- lm(train_data_lhs ~ lag_train_data)$coefficients
+pos2_forc2 <- coefs[[1]] + coefs[[2]] * train_data[length(train_data)]
 
 #===============================================================================
 # True Evaluation
 #===============================================================================
 
-forc <- oos_lag_forc(
-  lm_call = lm(y ~ x1 + x2, data),
+forc <- autoreg_forc(
+  realized_vec = data$y,
   h_ahead = 2L,
-  estimation_end = as.Date("2011-03-31"),
-  time_vec = data$date
-)
-
-forc2 <- oos_lag_forc(
-  lm_call = lm(y ~ x1 + x2, data),
-  h_ahead = 2L,
-  estimation_end = as.Date("2011-03-31"),
+  estimation_end = as.Date("2011-06-30"),
   time_vec = data$date,
   estimation_window = 4L
+)
+
+forc2 <- autoreg_forc(
+  realized_vec = data$y,
+  h_ahead = 3L,
+  estimation_end = as.Date("2011-06-30"),
+  time_vec = data$date,
+  estimation_window = NULL
 )
 
 #===============================================================================
@@ -87,9 +83,8 @@ test_that("Output values are correct.", {
   expect_equal(origin(forc), time_vec[output_start:output_end])
   expect_equal(future(forc), time_vec[(nrow(data) - output_length + 1):nrow(data)])
   expect_equal(realized(forc), data$y[(nrow(data) - output_length + 1):nrow(data)])
-  expect_equal(forc(forc)[1], pos5)
-  expect_equal(forc(forc)[3], pos7)
-  expect_equal(forc(forc2)[4], pos8)
+  expect_equal(forc(forc)[2], pos2_forc)
+  expect_equal(forc(forc2)[2], pos2_forc2)
 })
 
 test_that("Output Forecast is the correct length.", {

@@ -2,19 +2,24 @@
 #' Out-of-sample linear model forecast conditioned on vintage forecasts
 #'
 #' \code{oos_vintage_forc} takes a linear model call, a vector of time data
-#' associated with the linear model, and a forecast for each covariate in the
-#' linear model. For each period in the vintage forecasts, coefficients are
-#' updated based on information that would have been available at the forecast
-#' origin. Coefficients are then multiplied by vintage forecast values. Returns
-#' an out-of-sample forecast conditional on vintage forecasts that
-#' \strong{would} have been available at the forecast origin. Replicates the
-#' forecasts that a linear model would have produced.
+#' associated with the linear model, a forecast for each covariate in the
+#' linear model, and an optional integer number of past periods to estimate the 
+#' linear model over. For each period in the vintage forecasts, coefficients are
+#' estimated with data up to the current period minus the number of periods 
+#' specified in \code{estimation_window}. If \code{estimation_window} is left
+#' \code{NULL} then the linear model is estimated with all available data up to
+#' the current period. Coefficients are then multiplied by vintage forecast values. 
+#' Returns an out-of-sample forecast conditional on vintage forecasts that 
+#' \strong{would} have been available at the forecast origin. Replicates the 
+#' forecasts that a linear model would have produced in real time.
 #'
 #' @param lm_call Linear model call of the class lm.
 #' @param time_vec Vector of any class that is equal in length to the data
 #'   in \code{lm_call}.
 #' @param ... Set of forecasts of class Forecast, one forecast for each
 #'   covariate in the linear model.
+#' @param estimation_window Integer representing the number of past periods 
+#'   that the linear model should be estimated over in each period. 
 #'
 #' @return \code{\link{Forecast}} object that contains the out-of-sample
 #'   forecast.
@@ -31,6 +36,13 @@
 #'   x1_forecast_vintage, x2_forecast_vintage
 #' )
 #' 
+#' oos_vintage_forc(
+#'   lm_call = lm(y ~ x1 + x2, data),
+#'   time_vec = data$date,
+#'   x1_forecast_vintage, x2_forecast_vintage,
+#'   estimation_window = 20L
+#' )
+#' 
 #' }
 
 #===============================================================================
@@ -39,7 +51,7 @@
 
 #' @export
 
-oos_vintage_forc <- function(lm_call, time_vec, ...) {
+oos_vintage_forc <- function(lm_call, time_vec, ..., estimation_window = NULL) {
 
   forecasts <- list(...)
   num_coefs <- length(lm_call$coefficients)
@@ -90,6 +102,14 @@ oos_vintage_forc <- function(lm_call, time_vec, ...) {
                 "  * time_vec is of class: ", class(time_vec),
                 "\n  * forecast future(s) are of class: ", class(forecasts[[1]]@future)))
   }
+  
+  if (is.null(estimation_window) == FALSE & is.integer(estimation_window) == FALSE) {
+    stop("* estimation_window must be an integer: estimation_end = 20L")
+  }
+  
+  if (is.null(estimation_window) == FALSE & is.integer(estimation_window) == FALSE) {
+    stop("* estimation_window must be of length one: estimation_end = 20L")
+  }
 
   # For each future value, find the latest origin in all forecasts.
   origin_vecs <- lapply(forecasts, function(x) x@origin)
@@ -106,7 +126,16 @@ oos_vintage_forc <- function(lm_call, time_vec, ...) {
   # Run forecast loop.
   for (i in 1:length(origin_vec)) {
 
-    train_data <- lm_call$model[time_vec <= origin_vec[i], ]
+    # Subset train_data by estimation_window parameter.
+    if (is.null(estimation_window) == TRUE) {
+      train_data <- lm_call$model[time_vec <= origin_vec[i], ] 
+    } else {
+      train_data <- lm_call$model[time_vec <= origin_vec[i], ]
+      if ((nrow(train_data) - estimation_window) >= 1) {
+        train_data <- train_data[((nrow(train_data) - estimation_window):nrow(train_data)), ]
+      }
+    }
+    
     train_lm   <- eval(lm_call$call)
 
     coefs  <- train_lm$coefficients

@@ -3,12 +3,16 @@
 #'
 #' \code{oos_realized_forc} takes a linear model call, an integer number of
 #' periods ahead to forecast, a period to end the initial coefficient estimation
-#' and begin forecasting, and an optional vector of time data associated with
-#' the linear model. The linear model is originally estimated with data up to
+#' and begin forecasting, an optional vector of time data associated with
+#' the linear model, and an optional integer number of past periods to estimate
+#' the linear model over. The linear model is originally estimated with data up 
+#' to \code{estimation_end} minus the number of periods specified in 
+#' \code{estimation_window}. If \code{estimation_window} is left \code{NULL} 
+#' then the linear model is estimated with all available data up to 
 #' \code{estimation_end}. Coefficients are multiplied by realized values of the
 #' covariates \code{h_ahead} periods ahead to create an \code{h_ahead} period
 #' ahead forecast. This process is iteratively repeated for each period after
-#' \code{estimation_end}  with coefficients updating in each period. Returns an
+#' \code{estimation_end} with coefficients updating in each period. Returns an
 #' out-of-sample forecast conditional on realized values that \strong{would not}
 #' have been available at the forecast origin. Tests the out-of-sample
 #' performance of a linear model had it been conditioned on perfect information.
@@ -20,6 +24,8 @@
 #'   coefficient estimation period and begin forecasting.
 #' @param time_vec Vector of any class that is equal in length to the data
 #'   in \code{lm_call}.
+#' @param estimation_window Integer representing the number of past periods 
+#'   that the linear model should be estimated over in each period. 
 #'
 #' @return \code{\link{Forecast}} object that contains the out-of-sample
 #'   forecast.
@@ -34,7 +40,8 @@
 #'   lm_call = lm(y ~ x1 + x2, data),
 #'   h_ahead = 4L,
 #'   estimation_end = as.Date("2010-01-01"),
-#'   time_vec = data$date
+#'   time_vec = data$date,
+#'   estimation_window = 20L
 #' )
 #'
 #' oos_realized_forc(
@@ -51,7 +58,8 @@
 
 #' @export
 
-oos_realized_forc <- function(lm_call, h_ahead, estimation_end, time_vec = NULL) {
+oos_realized_forc <- function(lm_call, h_ahead, estimation_end, time_vec = NULL,
+  estimation_window = NULL) {
 
   # Input validation.
   if (class(lm_call) != "lm") {
@@ -82,6 +90,14 @@ oos_realized_forc <- function(lm_call, h_ahead, estimation_end, time_vec = NULL)
                 "\n  * Number of rows in lm_call data: ", nrow(lm_call$model),
                 "\n  * This may be caused by NAs in the data."))
   }
+  
+  if (is.null(estimation_window) == FALSE & is.integer(estimation_window) == FALSE) {
+    stop("* estimation_window must be an integer: estimation_end = 20L")
+  }
+  
+  if (is.null(estimation_window) == FALSE & is.integer(estimation_window) == FALSE) {
+    stop("* estimation_window must be of length one: estimation_end = 20L")
+  }
 
   # Find OOS forecast period and prepare forecasting loop.
   if (is.null(time_vec) == TRUE) {
@@ -92,7 +108,13 @@ oos_realized_forc <- function(lm_call, h_ahead, estimation_end, time_vec = NULL)
     estimation_end <- which(time_vec <= estimation_end)
     estimation_end <- estimation_end[length(estimation_end)]
   }
-
+  
+  # Verify there is enough data after estimation_end to produce a forecast.
+  if (estimation_end > (nrow(lm_call$model) - h_ahead)) {
+    stop(paste0("* Not enough data after estimation_end to produce a forecast.\n",
+                "  * Decrease estimation_end, decrease h_ahead, or add additional observations."))
+  }
+  
   oos_index <- estimation_end:(nrow(lm_call$model) - h_ahead)
 
   lm_call$call$data <- quote(train_data)
@@ -106,8 +128,18 @@ oos_realized_forc <- function(lm_call, h_ahead, estimation_end, time_vec = NULL)
   for (i in 1:length(oos_index)) {
 
     index <- oos_index[[i]]
+    
+    # Subset train_data by estimation_window parameter.
+    if (is.null(estimation_window) == TRUE) {
+      train_data <- lm_call$model[1:index, ]  
+    } else {
+      if ((index - estimation_window) < 1) {
+        train_data <- lm_call$model[1:index, ]  
+      } else {
+        train_data <- lm_call$model[(index - estimation_window):index, ] 
+      }
+    }
 
-    train_data <- lm_call$model[1:index, ]
     train_lm   <- eval(lm_call$call)
     coefs      <- train_lm$coefficients
 
