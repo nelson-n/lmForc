@@ -1,5 +1,5 @@
 Package: lmForc
-Title: Functions for linear model forecasting
+Title: Functions for Linear Model Forecasting
 Version: 0.0.1
 Authors@R: 
     person(given = "Nelson",
