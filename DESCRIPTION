@@ -6,12 +6,10 @@ Authors@R:
            family = "Rayl",
            role = c("aut", "cre"),
            email = "nelsonrayl14@gmail.com")
-Description: The R package lmForc introduces functions for testing linear model 
-    forecasts and a new class for working with forecast data: Forecast. Test 
-    linear models out-of-sample by conditioning on realized values, vintage 
-    forecasts, or lagged values. Test MSE and RMSE weighted forecasts 
-    out-of-sample. Create and save forecasts using the Forecast class.
-License: GPL (>= 3) + file LICENSE
+Description: Introduces in-sample, out-of-sample, pseudo out-of-sample, and
+    benchmark linear model forecast tests and a new class for working with 
+    forecast data: Forecast.
+License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
