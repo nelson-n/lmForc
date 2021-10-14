@@ -8,12 +8,13 @@
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/lmForc?color=brightgreen)](https://cran.r-project.org/package=lmForc)
 [![Total
 Downloads](http://cranlogs.r-pkg.org/badges/grand-total/lmForc?color=blue)](https://cran.r-project.org/package=lmForc)
-<!-- [![Monthly Downloads](http://cranlogs.r-pkg.org/badges/lmForc?color=blue)](https://cran.r-project.org/package=lmForc) -->
 [![R build
 status](https://github.com/lucius-verus-fan/lmForc/workflows/R-CMD-check/badge.svg)](https://github.com/lucius-verus-fan/lmForc/actionsm)
 [![Lifecycle:
 stable](https://img.shields.io/badge/lifecycle-stable-success.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 <!-- badges: end -->
+
+<!-- [![Monthly Downloads](http://cranlogs.r-pkg.org/badges/lmForc?color=blue)](https://cran.r-project.org/package=lmForc) -->
 
 The R package *lmForc* introduces functions for testing linear model
 forecasts and a new class for working with forecast data: Forecast. Test
