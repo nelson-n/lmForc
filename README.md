@@ -5,14 +5,16 @@
 
 <!-- badges: start -->
 
-![R build
-status](https://github.com/lucius-verus-fan/lmForc/workflows/R-CMD-check/badge.svg)
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/lmForc?color=green)](https://cran.r-project.org/package=lmForc)
+[![Total
+Downloads](http://cranlogs.r-pkg.org/badges/grand-total/lmForc?color=green)](https://cran.r-project.org/package=lmForc)
+[![Monthly
+Downloads](http://cranlogs.r-pkg.org/badges/lmForc?color=green)](https://cran.r-project.org/package=lmForc)
+[![R build
+status](https://github.com/lucius-verus-fan/lmForc/workflows/R-CMD-check/badge.svg)](https://cran.r-project.org/package=lmForc)
 [![Lifecycle:
 stable](https://img.shields.io/badge/lifecycle-stable-success.svg)](https://lifecycle.r-lib.org/articles/stages.html)
-[![R-CMD-check](https://github.com/lucius-verus-fan/lmForc/workflows/R-CMD-check/badge.svg)](https://github.com/lucius-verus-fan/lmForc/actions)
 <!-- badges: end -->
-
-<!-- [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/lmForc)](https://cran.r-project.org/package=lmForc) -->
 
 The R package *lmForc* introduces functions for testing linear model
 forecasts and a new class for working with forecast data: Forecast. Test
@@ -57,6 +59,7 @@ been given perfect information.
 ``` r
 library(lmForc)
 
+# Stylized dataset.
 date <- as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31",
                   "2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31", 
                   "2012-03-31", "2012-06-30"))
@@ -65,6 +68,7 @@ x1   <- c(4.22, 3.86, 4.27, 5.60, 5.11, 4.31, 4.92, 5.80, 6.30, 4.17)
 x2   <- c(10.03, 10.49, 10.85, 10.47, 9.09, 10.91, 8.68, 9.91, 7.87, 6.63)
 data <- data.frame(date, y, x1, x2)
 
+# Out-of-sample forecast.
 forecast1 <- oos_realized_forc(
   lm_call = lm(y ~ x1 + x2, data),
   h_ahead = 2L,
@@ -89,6 +93,7 @@ the historical mean forecast that would have been produced in real time
 and serves as a benchmark for other models.
 
 ``` r
+# Historical Mean Forecast
 forecast2 <- historical_mean_forc(
   realized_vec = data$y,
   h_ahead = 2L,
