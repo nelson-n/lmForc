@@ -4,6 +4,10 @@
 \name{Forecast-class}
 \alias{Forecast-class}
 \title{S4 class for storing forecasts}
+\value{
+\code{\link{Forecast}} object that contains \code{origin},
+\code{future}, \code{forecast}, \code{realized}, and \code{h_ahead} slots.
+}
 \description{
 An S4 class for storing forecasts. An object of the Forecast class has equal
 length vectors that contain the time the forecast was made, the future time

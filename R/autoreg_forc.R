@@ -36,9 +36,14 @@
 #' @seealso
 #' For a detailed example see the help vignette:
 #' \code{vignette("lmForc", package = "lmForc")}
-#'
-#' @examples \dontrun{
-#'
+#' 
+#' @examples 
+#' date <- as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31",
+#'                   "2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31", 
+#'                   "2012-03-31", "2012-06-30"))
+#' y  <- c(1.09, 1.71, 1.09, 2.46, 1.78, 1.35, 2.89, 2.11, 2.97, 0.99)
+#' data <- data.frame(date, y)
+#' 
 #' autoreg_forc(
 #'   realized_vec = data$y,
 #'   h_ahead = 2L,
@@ -52,8 +57,6 @@
 #'   h_ahead = 2L,
 #'   estimation_end = 4L
 #' )
-#'  
-#' }
 #' 
 #' @importFrom stats lm
 #' 

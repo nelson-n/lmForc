@@ -28,7 +28,11 @@ Returns a random walk forecast where the \code{h_ahead} period ahead forecast
 is simply the present value of the series being forecasted.
 }
 \examples{
-\dontrun{
+date <- as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31",
+                  "2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31", 
+                  "2012-03-31", "2012-06-30"))
+y  <- c(1.09, 1.71, 1.09, 2.46, 1.78, 1.35, 2.89, 2.11, 2.97, 0.99)
+data <- data.frame(date, y)
 
 random_walk_forc(
   realized_vec = data$y,
@@ -36,7 +40,6 @@ random_walk_forc(
   time_vec = data$date 
 )
 
-}
 }
 \seealso{
 For a detailed example see the help vignette:

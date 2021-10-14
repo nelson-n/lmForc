@@ -19,13 +19,25 @@ was stored in the Forecast objects. If multiple forecasts are being
 collected, all forecasts must have identical future and realized values.
 }
 \examples{
-\dontrun{
+x1_forecast <- Forecast(
+   origin   = as.Date(c("2010-09-30", "2010-12-31", "2011-03-31", "2011-06-30")),
+   future   = as.Date(c("2011-09-30", "2011-12-31", "2012-03-31", "2012-06-30")),
+   forecast = c(6.30, 4.17, 5.30, 4.84),
+   realized = c(8.68, 9.91, 7.87, 6.63),
+   h_ahead  = 4L
+)
+
+x2_forecast <- Forecast(
+   origin   = as.Date(c("2010-09-30", "2010-12-31", "2011-03-31", "2011-06-30")),
+   future   = as.Date(c("2011-09-30", "2011-12-31", "2012-03-31", "2012-06-30")),
+ forecast = c(7.32, 6.88, 6.82, 6.95),
+ realized = c(8.68, 9.91, 7.87, 6.63),
+ h_ahead  = 4L
+) 
 
 collect(x1_forecast)
 
 collect(x1_forecast, x2_forecast)
-
-}
 
 }
 \seealso{

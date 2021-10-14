@@ -36,7 +36,35 @@ Returns an out-of-sample forecast conditional on vintage forecasts that
 forecasts that a linear model would have produced in real time.
 }
 \examples{
-\dontrun{
+date <- as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31",
+                  "2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31", 
+                  "2012-03-31", "2012-06-30"))
+y  <- c(1.09, 1.71, 1.09, 2.46, 1.78, 1.35, 2.89, 2.11, 2.97, 0.99)
+x1 <- c(4.22, 3.86, 4.27, 5.60, 5.11, 4.31, 4.92, 5.80, 6.30, 4.17)
+x2  <- c(10.03, 10.49, 10.85, 10.47, 9.09, 10.91, 8.68, 9.91, 7.87, 6.63)
+data <- data.frame(date, y, x1, x2)
+
+x1_forecast_vintage <- Forecast(
+   origin   = as.Date(c("2010-09-30", "2010-12-31", "2011-03-31", "2011-06-30")),
+   future   = as.Date(c("2011-09-30", "2011-12-31", "2012-03-31", "2012-06-30")),
+   forecast = c(6.30, 4.17, 5.30, 4.84),
+   realized = c(4.92, 5.80, 6.30, 4.17),
+   h_ahead  = 4L
+)
+
+x2_forecast_vintage <- Forecast(
+   origin   = as.Date(c("2010-09-30", "2010-12-31", "2011-03-31", "2011-06-30")),
+   future   = as.Date(c("2011-09-30", "2011-12-31", "2012-03-31", "2012-06-30")),
+ forecast = c(7.32, 6.88, 6.82, 6.95),
+ realized = c(8.68, 9.91, 7.87, 6.63),
+ h_ahead  = 4L
+) 
+
+oos_vintage_forc(
+  lm_call = lm(y ~ x1 + x2, data),
+  time_vec = data$date,
+  x1_forecast_vintage, x2_forecast_vintage
+)
 
 oos_vintage_forc(
   lm_call = lm(y ~ x1 + x2, data),
@@ -48,10 +76,9 @@ oos_vintage_forc(
   lm_call = lm(y ~ x1 + x2, data),
   time_vec = data$date,
   x1_forecast_vintage, x2_forecast_vintage,
-  estimation_window = 20L
+  estimation_window = 4L
 )
 
-}
 }
 \seealso{
 For a detailed example see the help vignette:
