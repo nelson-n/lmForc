@@ -9,6 +9,7 @@
 status](https://github.com/lucius-verus-fan/lmForc/workflows/R-CMD-check/badge.svg)
 [![Lifecycle:
 stable](https://img.shields.io/badge/lifecycle-stable-success.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+[![R-CMD-check](https://github.com/lucius-verus-fan/lmForc/workflows/R-CMD-check/badge.svg)](https://github.com/lucius-verus-fan/lmForc/actions)
 <!-- badges: end -->
 
 <!-- [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/lmForc)](https://cran.r-project.org/package=lmForc) -->
@@ -25,7 +26,7 @@ matches the simplicity and interpretability of linear models.
 
 For an overview of the *lmForc* package, please read the vignette:
 [lmForc
-Vignette](https://htmlpreview.github.io/?https://github.com/lucius-verus-fan/lmForc/blob/main/doc/lmForc.html)
+Vignette](https://cran.r-project.org/web/packages/lmForc/vignettes/lmForc.html)
 
 ## Installation
 
@@ -33,7 +34,7 @@ To install the **stable** version from
 [CRAN](https://cran.r-project.org/package=lmForc):
 
 ``` r
-Coming Soon
+install.packages("lmForc")
 ```
 
 To install the **development** version from
@@ -56,6 +57,14 @@ been given perfect information.
 ``` r
 library(lmForc)
 
+date <- as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31",
+                  "2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31", 
+                  "2012-03-31", "2012-06-30"))
+y    <- c(1.09, 1.71, 1.09, 2.46, 1.78, 1.35, 2.89, 2.11, 2.97, 0.99)
+x1   <- c(4.22, 3.86, 4.27, 5.60, 5.11, 4.31, 4.92, 5.80, 6.30, 4.17)
+x2   <- c(10.03, 10.49, 10.85, 10.47, 9.09, 10.91, 8.68, 9.91, 7.87, 6.63)
+data <- data.frame(date, y, x1, x2)
+
 forecast1 <- oos_realized_forc(
   lm_call = lm(y ~ x1 + x2, data),
   h_ahead = 2L,
@@ -75,9 +84,9 @@ forecast1
 
 Produce an out-of-sample forecast based on the historical mean. In each
 period the historical mean of the series is calculated based on
-information that would have been available to the forecaster and set as
-the forecast. Replicates the historical mean forecast that would have
-been produced in real time and serves as a benchmark for other models.
+information that would have been available to the forecaster. Replicates
+the historical mean forecast that would have been produced in real time
+and serves as a benchmark for other models.
 
 ``` r
 forecast2 <- historical_mean_forc(
