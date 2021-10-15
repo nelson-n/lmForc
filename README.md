@@ -9,7 +9,7 @@
 [![Total
 Downloads](http://cranlogs.r-pkg.org/badges/grand-total/lmForc?color=blue)](https://cran.r-project.org/package=lmForc)
 [![R build
-status](https://github.com/lucius-verus-fan/lmForc/workflows/R-CMD-check/badge.svg)](https://github.com/lucius-verus-fan/lmForc/actionsm)
+status](https://github.com/lucius-verus-fan/lmForc/workflows/R-CMD-check/badge.svg)](https://github.com/lucius-verus-fan/lmForc/actions)
 [![Lifecycle:
 stable](https://img.shields.io/badge/lifecycle-stable-success.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 <!-- badges: end -->
