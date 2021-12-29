@@ -16,9 +16,6 @@
 #' @slot h_ahead Optional length-one object representing the number of periods
 #'    ahead being forecasted.
 #'
-#' @return \code{\link{Forecast}} object that contains \code{origin}, 
-#'    \code{future}, \code{forecast}, \code{realized}, and \code{h_ahead} slots.
-#'
 #' @seealso
 #' For a detailed example see the help vignette:
 #' \code{vignette("lmForc", package = "lmForc")}
@@ -66,9 +63,6 @@ setClass("Forecast",
 #'    value at the future time.
 #' @param h_ahead Optional length-one object representing the number of periods
 #'    ahead being forecasted.
-#'    
-#' @return \code{\link{Forecast}} object that contains \code{origin}, 
-#'    \code{future}, \code{forecast}, \code{realized}, and \code{h_ahead} slots.
 #'
 #' @seealso
 #' For a detailed example see the help vignette:
@@ -153,18 +147,19 @@ setValidity("Forecast", function(object) {
 #' @return Printed \code{\link{Forecast}} object.
 #'
 #' @examples 
+#' 
 #' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
+#'   origin   = as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31")),
+#'   future   = as.Date(c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31")),
+#'   forecast = c(4.21, 4.27, 5.32, 5.11),
+#'   realized = c(4.40, 4.45, 4.87, 4.77),
+#'   h_ahead  = 4L
 #' )
 #' 
 #' print(my_forecast)
-#' 
+#'
 #' @importFrom methods show
-#' 
+#'
 #' @export
 
 setMethod("show", "Forecast", function(object) {
@@ -175,6 +170,49 @@ setMethod("show", "Forecast", function(object) {
   cat("h_ahead =", object@h_ahead, "\n\n")
   base::print.data.frame(dataframe)
 
+})
+
+## Create "str" method for Forecast class.
+
+#' Display internal structure structure of Forecast object to the console.
+#'
+#' \code{str} takes a \code{\link{Forecast}} object and prints its internal 
+#' structure to the console.
+#'
+#' @param object Forecast object.
+#'
+#' @return Structure of \code{\link{Forecast}} object.
+#'
+#' @examples 
+#' 
+#' my_forecast <- Forecast(
+#'   origin   = as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31")),
+#'   future   = as.Date(c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31")),
+#'   forecast = c(4.21, 4.27, 5.32, 5.11),
+#'   realized = c(4.40, 4.45, 4.87, 4.77),
+#'   h_ahead  = 4L
+#' )
+#' 
+#' str(my_forecast)
+#'
+#' @importFrom utils str
+#'
+#' @export
+
+setMethod("str", "Forecast", function(object) {
+
+  desc <- capture.output(utils:::str.default((object)))
+  desc[[1]] <- paste0("Forecast of length ", length(object@forecast))
+  
+  cat(
+    desc[[1]], "\n", 
+    desc[[2]], "\n", 
+    desc[[3]], "\n", 
+    desc[[4]], "\n", 
+    desc[[5]], "\n", 
+    desc[[6]] 
+  )
+  
 })
 
 #===============================================================================
@@ -224,16 +262,11 @@ setMethod("[", c("Forecast", "ANY", "ANY", "ANY"),
 #'
 #' @return \code{\link{Forecast}} object that contains the new origin vector.
 #'
-#' @examples 
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
-#'
-#' origin(my_forecast) <- c("2010-04-01", "2010-07-01", "2010-10-01", "2011-01-01")
+#' @examples \dontrun{
+#' 
+#' origin(Forecast) <- c("2015-01-01", "2015-01-02", "2015-01-03")
+#' 
+#' }
 #'
 #' @export
 
@@ -249,16 +282,11 @@ setGeneric("origin<-", function(Forecast, value) standardGeneric("origin<-"))
 #'
 #' @return \code{\link{Forecast}} object that contains the new origin vector.
 #'
-#' @examples 
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
-#'
-#' origin(my_forecast) <- c("2010-04-01", "2010-07-01", "2010-10-01", "2011-01-01")
+#' @examples \dontrun{
+#' 
+#' origin(Forecast) <- c("2015-01-01", "2015-01-02", "2015-01-03")
+#' 
+#' }
 #'
 #' @importFrom methods validObject
 #'
@@ -279,16 +307,11 @@ setMethod("origin<-", "Forecast", function(Forecast, value) {
 #'
 #' @return Vector of origin values stored in the \link{Forecast} object.
 #'
-#' @examples 
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
+#' @examples \dontrun{
 #' 
-#' origin(my_forecast)
+#' origin(Forecast)
+#' 
+#' }
 #'
 #' @export
 
@@ -303,17 +326,12 @@ setGeneric("origin", function(Forecast) standardGeneric("origin"))
 #'
 #' @return Vector of origin values stored in the \link{Forecast} object.
 #'
-#' @examples
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
+#' @examples \dontrun{
 #' 
-#' origin(my_forecast)
+#' origin(Forecast)
 #' 
+#' }
+#'
 #' @export
 
 setMethod("origin", "Forecast", function(Forecast) Forecast@origin)
@@ -332,16 +350,11 @@ setMethod("origin", "Forecast", function(Forecast) Forecast@origin)
 #'
 #' @return \code{\link{Forecast}} object that contains the new future vector.
 #'
-#' @examples 
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
-#'
-#' future(my_forecast) <- c("2012-04-01", "2012-07-01", "2012-10-01", "2013-01-01")
+#' @examples \dontrun{
+#' 
+#' future(Forecast) <- c("2015-03-01", "2015-03-02", "2015-03-03")
+#' 
+#' }
 #'
 #' @export
 
@@ -357,16 +370,11 @@ setGeneric("future<-", function(Forecast, value) standardGeneric("future<-"))
 #'
 #' @return \code{\link{Forecast}} object that contains the new future vector.
 #'
-#' @examples 
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
-#'
-#' future(my_forecast) <- c("2012-04-01", "2012-07-01", "2012-10-01", "2013-01-01")
+#' @examples \dontrun{
+#' 
+#' future(Forecast) <- c("2015-03-01", "2015-03-02", "2015-03-03")
+#' 
+#' }
 #'
 #' @importFrom methods validObject
 #'
@@ -387,17 +395,12 @@ setMethod("future<-", "Forecast", function(Forecast, value) {
 #'
 #' @return Vector of future values stored in the \link{Forecast} object.
 #'
-#' @examples 
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
+#' @examples \dontrun{
 #' 
-#' future(my_forecast)
+#' future(Forecast)
 #' 
+#' }
+#'
 #' @export
 
 setGeneric("future", function(Forecast) standardGeneric("future"))
@@ -411,16 +414,11 @@ setGeneric("future", function(Forecast) standardGeneric("future"))
 #'
 #' @return Vector of future values stored in the \link{Forecast} object.
 #'
-#' @examples 
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
+#' @examples \dontrun{
 #' 
-#' future(my_forecast)
+#' future(Forecast)
+#' 
+#' }
 #'
 #' @export
 
@@ -440,16 +438,11 @@ setMethod("future", "Forecast", function(Forecast) Forecast@future)
 #'
 #' @return \code{\link{Forecast}} object that contains the new forecast vector.
 #'
-#' @examples 
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
-#'
-#' forc(my_forecast) <- c(8.87, 7.61, 7.56, 5.96)
+#' @examples \dontrun{
+#' 
+#' forc(Forecast) <- c(2.45, 2.76, 3.31)
+#' 
+#' }
 #'
 #' @export
 
@@ -465,16 +458,11 @@ setGeneric("forc<-", function(Forecast, value) standardGeneric("forc<-"))
 #'
 #' @return \code{\link{Forecast}} object that contains the new forecast vector.
 #'
-#' @examples 
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
-#'
-#' forc(my_forecast) <- c(8.87, 7.61, 7.56, 5.96)
+#' @examples \dontrun{
+#' 
+#' forc(Forecast) <- c(2.45, 2.76, 3.31)
+#' 
+#' }
 #'
 #' @importFrom methods validObject
 #'
@@ -495,17 +483,12 @@ setMethod("forc<-", "Forecast", function(Forecast, value) {
 #'
 #' @return Vector of forecast values stored in the \link{Forecast} object.
 #'
-#' @examples 
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
+#' @examples \dontrun{
 #' 
-#' forc(my_forecast)
+#' forc(Forecast)
 #' 
+#' }
+#'
 #' @export
 
 setGeneric("forc", function(Forecast) standardGeneric("forc"))
@@ -519,17 +502,12 @@ setGeneric("forc", function(Forecast) standardGeneric("forc"))
 #'
 #' @return Vector of forecast values stored in the \link{Forecast} object.
 #'
-#' @examples 
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
+#' @examples \dontrun{
 #' 
-#' forc(my_forecast)
+#' forc(Forecast)
 #' 
+#' }
+#'
 #' @export
 
 setMethod("forc", "Forecast", function(Forecast) Forecast@forecast)
@@ -548,16 +526,11 @@ setMethod("forc", "Forecast", function(Forecast) Forecast@forecast)
 #'
 #' @return \code{\link{Forecast}} object that contains the new realized vector.
 #'
-#' @examples 
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
-#'
-#' realized(my_forecast) <- c(6.64, 6.10, 6.33, 6.67)
+#' @examples \dontrun{
+#' 
+#' realized(Forecast) <- c("2015-03-01", "2015-03-02", "2015-03-03")
+#' 
+#' }
 #'
 #' @export
 
@@ -573,16 +546,11 @@ setGeneric("realized<-", function(Forecast, value) standardGeneric("realized<-")
 #'
 #' @return \code{\link{Forecast}} object that contains the new realized vector.
 #'
-#' @examples
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
-#'
-#' realized(my_forecast) <- c(6.64, 6.10, 6.33, 6.67)
+#' @examples \dontrun{
+#' 
+#' realized(Forecast) <- c("2015-03-01", "2015-03-02", "2015-03-03")
+#' 
+#' }
 #'
 #' @importFrom methods validObject
 #'
@@ -603,16 +571,11 @@ setMethod("realized<-", "Forecast", function(Forecast, value) {
 #'
 #' @return Vector of realized values stored in the \link{Forecast} object.
 #'
-#' @examples 
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
-#'
-#' realized(my_forecast)
+#' @examples \dontrun{
+#' 
+#' realized(Forecast)
+#' 
+#' }
 #'
 #' @export
 
@@ -627,23 +590,18 @@ setGeneric("realized", function(Forecast) standardGeneric("realized"))
 #'
 #' @return Vector of realized values stored in the \link{Forecast} object.
 #'
-#' @examples 
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
-#'
-#' realized(my_forecast)
+#' @examples \dontrun{
+#' 
+#' realized(Forecast)
+#' 
+#' }
 #'
 #' @export
 
 setMethod("realized", "Forecast", function(Forecast) Forecast@realized)
 
 #===============================================================================
-# h_ahead Setter/Getter Generics and Methods
+# H_ahead Setter/Getter Generics and Methods
 #===============================================================================
 
 #' Set h_ahead slot of a Forecast object
@@ -656,16 +614,11 @@ setMethod("realized", "Forecast", function(Forecast) Forecast@realized)
 #'
 #' @return \code{\link{Forecast}} object that contains the new h_ahead vector.
 #'
-#' @examples 
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 2L
-#' )
-#'
-#' h_ahead(my_forecast) <- 4L
+#' @examples \dontrun{
+#' 
+#' h_ahead(Forecast) <- 4L
+#' 
+#' }
 #'
 #' @export
 
@@ -681,17 +634,12 @@ setGeneric("h_ahead<-", function(Forecast, value) standardGeneric("h_ahead<-"))
 #'
 #' @return \code{\link{Forecast}} object that contains the new h_ahead vector.
 #'
-#' @examples
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 2L
-#' )
+#' @examples \dontrun{
 #' 
-#' h_ahead(my_forecast) <- 4L
+#' h_ahead(Forecast) <- 4L
 #' 
+#' }
+#'
 #' @importFrom methods validObject
 #'
 #' @export
@@ -711,16 +659,11 @@ setMethod("h_ahead<-", "Forecast", function(Forecast, value) {
 #'
 #' @return Vector of h_ahead values stored in the \link{Forecast} object.
 #'
-#' @examples 
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
+#' @examples \dontrun{
 #' 
-#' h_ahead(my_forecast)
+#' h_ahead(Forecast)
+#' 
+#' }
 #'
 #' @export
 
@@ -735,23 +678,18 @@ setGeneric("h_ahead", function(Forecast) standardGeneric("h_ahead"))
 #'
 #' @return Vector of h_ahead values stored in the \link{Forecast} object.
 #'
-#' @examples
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
+#' @examples \dontrun{
 #' 
-#' h_ahead(my_forecast)
+#' h_ahead(Forecast)
 #' 
+#' }
+#'
 #' @export
 
 setMethod("h_ahead", "Forecast", function(Forecast) Forecast@h_ahead)
 
 #===============================================================================
-# MSE/RMSE Generics and Methods
+# Forecast Accuracy Generics and Methods
 #===============================================================================
 
 #' Calculate MSE of a Forecast object
@@ -765,15 +703,16 @@ setMethod("h_ahead", "Forecast", function(Forecast) Forecast@h_ahead)
 #' @return MSE value.
 #'
 #' @examples 
+#' 
 #' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
+#'   origin   = as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31")),
+#'   future   = as.Date(c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31")),
+#'   forecast = c(4.21, 4.27, 5.32, 5.11),
+#'   realized = c(4.40, 4.45, 4.87, 4.77),
+#'   h_ahead  = 4L
 #' )
-#'
-#' mse(my_forecast)
+#' 
+#' mse(Forecast)
 #' 
 #' @export
 
@@ -789,21 +728,27 @@ setGeneric("mse", function(Forecast) standardGeneric("mse"))
 #'
 #' @return MSE value.
 #'
-#' @examples
+#' @examples 
+#' 
 #' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
+#'   origin   = as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31")),
+#'   future   = as.Date(c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31")),
+#'   forecast = c(4.21, 4.27, 5.32, 5.11),
+#'   realized = c(4.40, 4.45, 4.87, 4.77),
+#'   h_ahead  = 4L
 #' )
 #' 
-#' mse(my_forecast)
+#' mse(Forecast)
 #' 
 #' @export
 
 setMethod("mse", "Forecast", function(Forecast) {
-  1/length(Forecast@forecast) * sum((Forecast@realized - Forecast@forecast)^2)
+  
+  forecast <- forc(Forecast)[!(is.na(forc(Forecast)) | is.na(realized(Forecast)))]
+  realized <- realized(Forecast)[!(is.na(forc(Forecast)) | is.na(realized(Forecast)))]
+  
+  1/length(forecast) * sum((realized - forecast)^2)
+  
 })
 
 #' Calculate RMSE of a Forecast object
@@ -816,16 +761,17 @@ setMethod("mse", "Forecast", function(Forecast) {
 #' @return RMSE value.
 #'
 #' @examples 
+#' 
 #' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
+#'   origin   = as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31")),
+#'   future   = as.Date(c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31")),
+#'   forecast = c(4.21, 4.27, 5.32, 5.11),
+#'   realized = c(4.40, 4.45, 4.87, 4.77),
+#'   h_ahead  = 4L
 #' )
-#'
-#' rmse(my_forecast)
-#'
+#' 
+#' rmse(Forecast)
+#' 
 #' @export
 
 setGeneric("rmse", function(Forecast) standardGeneric("rmse"))
@@ -839,17 +785,17 @@ setGeneric("rmse", function(Forecast) standardGeneric("rmse"))
 #'
 #' @return RMSE value.
 #'
-#' @examples
-#' my_forecast <- Forecast(
-#'    origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-#'    future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-#'    forecast = c(4.21, 4.27, 5.32, 5.11),
-#'    realized = c(4.40, 4.45, 4.87, 4.77),
-#'    h_ahead  = 4L
-#' )
-#'
+#' @examples 
 #' 
-#' rmse(my_forecast)
+#' my_forecast <- Forecast(
+#'   origin   = as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31")),
+#'   future   = as.Date(c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31")),
+#'   forecast = c(4.21, 4.27, 5.32, 5.11),
+#'   realized = c(4.40, 4.45, 4.87, 4.77),
+#'   h_ahead  = 4L
+#' )
+#' 
+#' rmse(Forecast)
 #' 
 #' @export
 
@@ -857,13 +803,191 @@ setMethod("rmse", "Forecast", function(Forecast) {
   sqrt(mse(Forecast))
 })
 
+#' Calculate MAE of a Forecast object
+#'
+#' \code{mae} takes a \code{\link{Forecast}} object and returns the MAE of the
+#' forecast. MAE is calculated as:
+#' \code{1/length(forecast) * sum(abs(forecast - realized))}
+#'
+#' @param Forecast Forecast object.
+#'
+#' @return MAE value.
+#'
+#' @examples 
+#' 
+#' my_forecast <- Forecast(
+#'   origin   = as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31")),
+#'   future   = as.Date(c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31")),
+#'   forecast = c(4.21, 4.27, 5.32, 5.11),
+#'   realized = c(4.40, 4.45, 4.87, 4.77),
+#'   h_ahead  = 4L
+#' )
+#' 
+#' mae(Forecast)
+#' 
+#' @export
+
+setGeneric("mae", function(Forecast) standardGeneric("mae"))
+
+#' Calculate MAE of a Forecast object
+#'
+#' \code{mae} takes a \code{\link{Forecast}} object and returns the MAE of the
+#' forecast. MAE is calculated as:
+#' \code{1/length(forecast) * sum(abs(forecast - realized))}
+#'
+#' @param Forecast Forecast object.
+#'
+#' @return MAE value.
+#'
+#' @examples 
+#' 
+#' my_forecast <- Forecast(
+#'   origin   = as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31")),
+#'   future   = as.Date(c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31")),
+#'   forecast = c(4.21, 4.27, 5.32, 5.11),
+#'   realized = c(4.40, 4.45, 4.87, 4.77),
+#'   h_ahead  = 4L
+#' )
+#' 
+#' mae(Forecast)
+#' 
+#' @export
+
+setMethod("mae", "Forecast", function(Forecast) {
+  
+  forecast <- forc(Forecast)[!(is.na(forc(Forecast)) | is.na(realized(Forecast)))]
+  realized <- realized(Forecast)[!(is.na(forc(Forecast)) | is.na(realized(Forecast)))]
+  
+  1/length(forecast) * sum(abs(forecast - realized))
+})
+
+#' Calculate MAPE of a Forecast object
+#'
+#' \code{mape} takes a \code{\link{Forecast}} object and returns the MAPE of the
+#' forecast. MAPE is calculated as:
+#' \code{1/length(forecast) * sum(abs(realized - forecast) / realized)}
+#'
+#' @param Forecast Forecast object.
+#'
+#' @return MAPE value.
+#'
+#' @examples 
+#' 
+#' my_forecast <- Forecast(
+#'   origin   = as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31")),
+#'   future   = as.Date(c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31")),
+#'   forecast = c(4.21, 4.27, 5.32, 5.11),
+#'   realized = c(4.40, 4.45, 4.87, 4.77),
+#'   h_ahead  = 4L
+#' )
+#' 
+#' mape(Forecast)
+#'
+#' @export
+
+setGeneric("mape", function(Forecast) standardGeneric("mape"))
+
+#' Calculate MAPE of a Forecast object
+#'
+#' \code{mape} takes a \code{\link{Forecast}} object and returns the MAPE of the
+#' forecast. MAPE is calculated as:
+#' \code{1/length(forecast) * sum(abs(realized - forecast) / realized)}
+#'
+#' @param Forecast Forecast object.
+#'
+#' @return MAPE value.
+#'
+#' @examples 
+#' 
+#' my_forecast <- Forecast(
+#'   origin   = as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31")),
+#'   future   = as.Date(c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31")),
+#'   forecast = c(4.21, 4.27, 5.32, 5.11),
+#'   realized = c(4.40, 4.45, 4.87, 4.77),
+#'   h_ahead  = 4L
+#' )
+#' 
+#' mape(Forecast)
+#'
+#' @export
+
+setMethod("mape", "Forecast", function(Forecast) {
+  
+  forecast <- forc(Forecast)[!(is.na(forc(Forecast)) | is.na(realized(Forecast)))]
+  realized <- realized(Forecast)[!(is.na(forc(Forecast)) | is.na(realized(Forecast)))]
+  
+  1/length(forecast) * sum(abs(realized - forecast) / realized) 
+  
+})
+
+#' Calculate R2 of a Forecast object
+#'
+#' \code{R2} takes a \code{\link{Forecast}} object and returns the R2 of the
+#' forecast. R2 is calculated as:
+#' \code{cor(forecast, realized)^2}
+#'
+#' @param Forecast Forecast object.
+#'
+#' @return R2 value.
+#'
+#' @examples 
+#' 
+#' my_forecast <- Forecast(
+#'   origin   = as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31")),
+#'   future   = as.Date(c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31")),
+#'   forecast = c(4.21, 4.27, 5.32, 5.11),
+#'   realized = c(4.40, 4.45, 4.87, 4.77),
+#'   h_ahead  = 4L
+#' )
+#' 
+#' R2(Forecast)
+#'
+#' @export
+
+setGeneric("R2", function(Forecast) standardGeneric("R2"))
+
+#' Calculate R2 of a Forecast object
+#'
+#' \code{R2} takes a \code{\link{Forecast}} object and returns the R2 of the
+#' forecast. R2 is calculated as:
+#' \code{cor(forecast, realized)^2}
+#'
+#' @param Forecast Forecast object.
+#'
+#' @return R2 value.
+#'
+#' @examples 
+#' 
+#' my_forecast <- Forecast(
+#'   origin   = as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31")),
+#'   future   = as.Date(c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31")),
+#'   forecast = c(4.21, 4.27, 5.32, 5.11),
+#'   realized = c(4.40, 4.45, 4.87, 4.77),
+#'   h_ahead  = 4L
+#' )
+#' 
+#' R2(Forecast)
+#' 
+#' @importFrom stats cor
+#'
+#' @export
+
+setMethod("R2", "Forecast", function(Forecast) {
+  
+  forecast <- forc(Forecast)[!(is.na(forc(Forecast)) | is.na(realized(Forecast)))]
+  realized <- realized(Forecast)[!(is.na(forc(Forecast)) | is.na(realized(Forecast)))]
+  
+  stats::cor(forecast, realized)^2
+  
+})
+
 #===============================================================================
-# Collect Function
+# forc2df Function
 #===============================================================================
 
 #' Collect a Forecast object to a data frame
 #'
-#' \code{collect} takes one or more objects of the Forecast class and collects
+#' \code{forc2df} takes one or more objects of the Forecast class and collects
 #' them into a data frame. Returns a data frame with all of the information that
 #' was stored in the Forecast objects. If multiple forecasts are being
 #' collected, all forecasts must have identical future and realized values.
@@ -876,30 +1000,17 @@ setMethod("rmse", "Forecast", function(Forecast) {
 #' For a detailed example see the help vignette:
 #' \code{vignette("lmForc", package = "lmForc")}
 #'
-#' @examples 
-#' x1_forecast <- Forecast(
-#'    origin   = as.Date(c("2010-09-30", "2010-12-31", "2011-03-31", "2011-06-30")),
-#'    future   = as.Date(c("2011-09-30", "2011-12-31", "2012-03-31", "2012-06-30")),
-#'    forecast = c(6.30, 4.17, 5.30, 4.84),
-#'    realized = c(8.68, 9.91, 7.87, 6.63),
-#'    h_ahead  = 4L
-#' )
+#' @examples \dontrun{
 #'
-#' x2_forecast <- Forecast(
-#'    origin   = as.Date(c("2010-09-30", "2010-12-31", "2011-03-31", "2011-06-30")),
-#'    future   = as.Date(c("2011-09-30", "2011-12-31", "2012-03-31", "2012-06-30")),
-#'  forecast = c(7.32, 6.88, 6.82, 6.95),
-#'  realized = c(8.68, 9.91, 7.87, 6.63),
-#'  h_ahead  = 4L
-#' ) 
+#' forc2df(x1_forecast)
 #'
-#' collect(x1_forecast)
+#' forc2df(x1_forecast, x2_forecast)
 #'
-#' collect(x1_forecast, x2_forecast)
+#'}
 #'
 #' @export
 
-collect <- function(...) {
+forc2df <- function(...) {
 
   forecast_names <- as.character(sys.call())[-1]
   forecasts <- list(...)

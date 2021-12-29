@@ -219,8 +219,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="conditional_forc" class="section level4">
 <h4><a href="#conditional_forc-1">conditional_forc</a></h4>
 </div>
-<div id="historical_mean_forc" class="section level4">
-<h4><a href="#historical_mean_forc-1">historical_mean_forc</a></h4>
+<div id="historical_average_forc" class="section level4">
+<h4><a href="#historical_average_forc-1">historical_average_forc</a></h4>
 </div>
 <div id="random_walk_forc" class="section level4">
 <h4><a href="#random_walk_forc-1">random_walk_forc</a></h4>
@@ -231,10 +231,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="mse_weighted_forc" class="section level4">
 <h4><a href="#mse_weighted_forc-1">mse_weighted_forc</a></h4>
 </div>
+<div id="states_weighted_forc" class="section level4">
+<h4><a href="#states_weighted_forc-1">states_weighted_forc</a></h4>
+</div>
 </div>
 <div id="lmforc-motivation" class="section level2">
 <h2>lmForc Motivation</h2>
-<p>Linear forecasting models have two main features: simplicity and interpretability. These features allow the performance of linear forecasting models to be tested in multiple ways, both in-sample and out-out-sample. The <em>lmForc</em> package brings these performance tests to the R language with a philosophy that compliments the features of linear models: One, the syntax for creating linear models is simple and the syntax for testing them should be equally simple. Two, performance tests should be realistic and when possible replicate what it would have been like to forecast in real time.</p>
+<p>Linear forecasting models have two main features: simplicity and interpretability. These features allow the performance of linear forecasting models to be tested in multiple ways, both in-sample and out-out-sample. The <em>lmForc</em> package brings these performance tests to the R language with a philosophy that compliments the features of linear models: One, the syntax for creating linear models is simple and the syntax for testing them should be equally simple. Two, performance tests should be realistic and when possible replicate what it would have been like to forecast in real-time.</p>
 </div>
 <div id="forecast-class-1" class="section level2">
 <h2>Forecast Class</h2>
@@ -257,23 +260,29 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>Note that we have chosen Date objects at the quarterly frequency for our <code>origin</code> and <code>future</code> slots. This forecast is for four quarters ahead, so we fill in the <code>h_ahead</code> slot with the integer four.</p>
 <p>The <code>origin</code>, <code>future</code>, and <code>h_ahead</code> slots can be filled with any values. This is where the general nature of the <code>Forecast</code> class shines. In the <code>origin</code> and <code>future</code> slots we could use dates at a daily or yearly frequency, the <code>POSIXct</code> class to include minutes and seconds, or integers to represent discrete periods. We can also store different types of forecasts. In the example above, we have forecasts made at different <code>origin</code> times for a constant four quarter ahead forecast horizon. We could also store a forecast made at a single <code>origin</code> time for a horizon of <code>future</code> times by setting all of the <code>origin</code> values to one time and using <code>future</code> to represent the horizon of times that we are forecasting. In this case the <code>h_ahead</code> slot becomes irrelevant and it is left as <code>NULL</code>. The flexibility of these slots allows us to represent any type of numeric forecast.</p>
 <p>The <code>forecast</code> and <code>realized</code> slots take numeric vectors. In the <code>forecast</code> slot we see the forecast that was made at each <code>origin</code> time and in the <code>realized</code> slot we see the true value that was realized at each <code>future</code> time. The realized values may not exist yet, so this slot may be partially populated or not populated at all. If the <code>realized</code> slot is set to <code>NULL</code> then it will be populated with a vector of <code>NA</code> values.</p>
-<p>The <code>Forecast</code> class strikes a balance between simplicity and rigor. It is simple enough to store any numeric forecast, but it is rigorous enough to create a useful data structure. For example, we can quickly calculate the MSE or RMSE of the <code>Forecast</code> object we created above with only one argument.</p>
+<p>The <code>Forecast</code> class strikes a balance between simplicity and rigor. It is simple enough to store any numeric forecast, but it is rigorous enough to create a useful data structure. For example, we can quickly calculate a number of forecast accuracy metrics for the <code>Forecast</code> object we created above using only one argument.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mse</span>(my_forecast)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.09665</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">rmse</span>(my_forecast)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.3108858</span></span></code></pre></div>
-<p>Because the <code>forecast</code> and <code>realized</code> slots must be numeric vectors, and all slots must be of the same length, we do not have to worry about input validation or coercing multiple vectors to the correct format when calculating MSE or RMSE.</p>
-<p>MSE is calculated as:</p>
-<p><span class="math display">\[
-\hspace{8.45cm} n = \text{forecast vector length}\\[.20cm]
-MSE = \frac{1}{n} \sum_{i=1}^{n}{(Y_i - \hat{Y_i})^2} 
-\qquad \text{where} \quad Y_i = \text{realized values} \\
-\hspace{7.3cm} \hat{Y_i} = \text{forecast values}
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.3108858</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">mae</span>(my_forecast)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.29</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="fu">mape</span>(my_forecast)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.06182814</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="fu">R2</span>(my_forecast)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] 0.9973145</span></span></code></pre></div>
+<p>Because the <code>forecast</code> and <code>realized</code> slots must be numeric vectors, and all slots must be of the same length, we can calculate forecast accuracy metrics without having to worry about input validation or coercing multiple vectors to the correct format. The forecast accuracy metrics available in the <em>lmForc</em> package are calculated as follows where: <span class="math display">\[
+n = \text{forecast vector length}\\
+\quad Y_i = \text{realized values}\\
+\hat{Y_i} = \text{forecast values}
 \]</span></p>
-<p>RMSE is calculated as: <span class="math display">\[ RMSE = \sqrt{MSE}  \]</span></p>
+<p>MSE is calculated as: <span class="math display">\[
+MSE = \frac{1}{n} \sum_{i=1}^{n}{(Y_i - \hat{Y_i})^2}
+\]</span></p>
+<p>RMSE is calculated as: <span class="math display">\[ RMSE = \sqrt{MSE}  \]</span> MAE is calculated as: <span class="math display">\[ MAE = \frac{1}{n} \sum_{i=1}^{n}{|\hat{Y_i} - Y_i|} \]</span> MAPE is calculated as: <span class="math display">\[ MAPE = \frac{1}{n} \sum_{i=1}^{n}\frac{|Y_i - \hat{Y_i}|}{{Y_i}} \]</span> R2 is calculated as: <span class="math display">\[ R^2 = cor(\hat{Y_i}, \ Y_i)^2 \]</span></p>
 <p>Note that these equations require two inputs, but because both inputs are already stored in the <code>Forecast</code> object we only need to pass one argument to the <code>mse()</code> and <code>rmse()</code> functions. Calculating forecast accuracy is a simple use case of the <code>Forecast</code> class. More complex use cases exist in the <em>lmForc</em> package, where many of the functions require inputs to be of the <code>Forecast</code> class. When weighting multiple forecasts or testing a linear model that is conditional on another forecast, the consistent structure of the class results in simple functions that execute correctly, no matter the type of forecast passed to the function. Furthermore, all <em>lmForc</em> functions return objects of the <code>Forecast</code> class which creates synergy between functions. One can take two linear models, test their performance out-of-sample with the <code>oos_realized_forc()</code> function which returns <code>Forecast</code> objects, and then pass these two objects to the <code>mse_weighted_forc()</code> function to find the weighted out-of-sample performance of both models.</p>
-<p>One fear may be that the novel <code>Forecast</code> class will not play well with functions and packages that already exist in the R language. The <em>lmForc</em> package provides methods for accessing all of the vectors stored in a <code>Forecast</code> object as well as the <code>collect()</code> function which returns one or multiple <code>Forecast</code> objects as a data frame. With these methods, one can easily pass the data in a <code>Forecast</code> object to other functions.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">collect</span>(my_forecast)</span>
+<p>One fear may be that the novel <code>Forecast</code> class will not play well with functions and packages that already exist in the R language. The <em>lmForc</em> package provides methods for accessing all of the vectors stored in a <code>Forecast</code> object as well as the <code>forc2df()</code> function which returns one or multiple <code>Forecast</code> objects as a data frame. With these methods, one can easily pass the data in a <code>Forecast</code> object to other functions.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">forc2df</span>(my_forecast)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       origin     future my_forecast realized</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 2010-03-31 2011-03-31        4.21     4.40</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 2010-06-30 2011-06-30        4.27     4.45</span></span>
@@ -362,15 +371,16 @@ forecast_{p+h} = \beta_0 + \beta_1 X1_{p+h} + \beta_2 X2_{p+h} \qquad
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">h_ahead =</span> 2L,</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_end =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2011-03-31&quot;</span>),</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">time_vec =</span> data<span class="sc">$</span>date,</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_window =</span> <span class="cn">NULL</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; h_ahead = 2 </span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       origin     future forecast realized</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 2011-03-31 2011-09-30 1.623750     2.89</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 2011-06-30 2011-12-31 2.341664     2.11</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 2011-09-30 2012-03-31 3.415198     2.97</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 2011-12-31 2012-06-30 2.708308     0.99</span></span></code></pre></div>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_window =</span> <span class="cn">NULL</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">return_betas =</span> <span class="cn">FALSE</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; h_ahead = 2 </span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       origin     future forecast realized</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 2011-03-31 2011-09-30 1.623750     2.89</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 2011-06-30 2011-12-31 2.341664     2.11</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 2011-09-30 2012-03-31 3.415198     2.97</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 2011-12-31 2012-06-30 2.708308     0.99</span></span></code></pre></div>
 <p>Note that the <code>oos_realized_forc</code> function returns an out-of-sample forecast that conditions on realized values that <strong>would not</strong> have been available to the forecaster at the forecast origin. This test evaluates the performance of a linear forecast model had it been conditioned on perfect information.</p>
 </div>
 <div id="oos_lag_forc-1" class="section level2">
@@ -389,15 +399,16 @@ forecast_{p+h} = \beta_0 + \beta_1 X1_{p} + \beta_2 X2_{p} \qquad
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">h_ahead =</span> 2L,</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_end =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2011-03-31&quot;</span>),</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">time_vec =</span> data<span class="sc">$</span>date,</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_window =</span> <span class="cn">NULL</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; h_ahead = 2 </span></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       origin     future  forecast realized</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 2011-03-31 2011-09-30 -2.100528     2.89</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 2011-06-30 2011-12-31  2.174392     2.11</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 2011-09-30 2012-03-31  2.813745     2.97</span></span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 2011-12-31 2012-06-30  1.807014     0.99</span></span></code></pre></div>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_window =</span> <span class="cn">NULL</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">return_betas =</span> <span class="cn">FALSE</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; h_ahead = 2 </span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       origin     future  forecast realized</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 2011-03-31 2011-09-30 -2.100528     2.89</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 2011-06-30 2011-12-31  2.174392     2.11</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 2011-09-30 2012-03-31  2.813745     2.97</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 2011-12-31 2012-06-30  1.807014     0.99</span></span></code></pre></div>
 <p>This test evaluates the performance of a lagged linear model had it been conditioned on present values that <strong>would</strong> have been available to the forecaster at the forecast origin. This is in contrast to conditioning on realized values or a forecast of the covariates.</p>
 </div>
 <div id="oos_vintage_forc-1" class="section level2">
@@ -432,16 +443,18 @@ forecast_{p+h} = \beta_0 + \beta_1 VF1_p + \beta_2 VF2_p \qquad
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="fu">oos_vintage_forc</span>(</span>
 <span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">lm_call =</span> <span class="fu">lm</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2, data),</span>
 <span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">time_vec =</span> data<span class="sc">$</span>date,</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  x1_forecast_vintage, x2_forecast_vintage</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; h_ahead = 4 </span></span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       origin     future  forecast realized</span></span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 2010-09-30 2011-09-30 -2.497310     2.89</span></span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 2010-12-31 2011-12-31  1.194088     2.11</span></span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 2011-03-31 2012-03-31  1.620716     2.97</span></span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 2011-06-30 2012-06-30  1.470027     0.99</span></span></code></pre></div>
-<p>This test replicates the forecasts that a linear model conditional on forecasts of covariates would have produced in real time. Here we see the strength of the <code>Forecast</code> class. Because the vintage forecasts of X1 and X2 share the same data structure, we can calculate a forecast that is conditional on these objects without fearing inconsistency across inputs.</p>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  x1_forecast_vintage, x2_forecast_vintage,</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_window =</span> <span class="cn">NULL</span>,</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">return_betas =</span> <span class="cn">FALSE</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; h_ahead = 4 </span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       origin     future  forecast realized</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 2010-09-30 2011-09-30 -2.497310     2.89</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 2010-12-31 2011-12-31  1.194088     2.11</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 2011-03-31 2012-03-31  1.620716     2.97</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 2011-06-30 2012-06-30  1.470027     0.99</span></span></code></pre></div>
+<p>This test replicates the forecasts that a linear model conditional on forecasts of covariates would have produced in real-time. Here we see the strength of the <code>Forecast</code> class. Because the vintage forecasts of X1 and X2 share the same data structure, we can calculate a forecast that is conditional on these objects without fearing inconsistency across inputs.</p>
 </div>
 <div id="conditional_forc-1" class="section level2">
 <h2>conditional_forc</h2>
@@ -486,29 +499,30 @@ forecast_{p+h} = \beta_0 + \beta_1 F1_p + \beta_2 F2_p \qquad
 <span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 2012-06-30 2013-06-30 2.044105       NA</span></span></code></pre></div>
 <p>This function is used to create a forecast for the present period or replicate a forecast made at a specific period in the past. Note that because we are forecasting into the future, <code>realized</code> is <code>NULL</code>. Also, because we are forecasting a horizon of dates, <code>h_ahead</code> is <code>NULL</code>.</p>
 </div>
-<div id="historical_mean_forc-1" class="section level2">
-<h2>historical_mean_forc</h2>
-<p>The <code>historical_mean_forc()</code> function produces an <em>h</em> period ahead forecast based on the historical mean of the series that is being forecasted. The function takes a vector of realized values, an integer number of periods ahead to forecast, a period to end the initial mean estimation and begin forecasting, an optional vector of time data associated with the realized values, and an optional integer number of past periods to estimate the mean over. The historical mean is originally calculated with realized values up to <code>estimation_end</code> minus the number of periods specified in <code>estimation_window</code>. If <code>estimation_window</code> is left <code>NULL</code> then the historical mean is calculated with all available realized values up to <code>estimation_end</code>. In each period the historical mean is set as the <code>h_ahead</code> period ahead forecast. This process is iteratively repeated for each period after <code>estimation_end</code> with the historical mean updating in each period as more information would have become available to the forecaster.</p>
-<p>In the sample <em>i</em>, for each period <em>p</em> greater than or equal to <code>estimation_end</code>, <code>h_ahead</code> <em>h</em> forecasts are calculated as:</p>
+<div id="historical_average_forc-1" class="section level2">
+<h2>historical_average_forc</h2>
+<p>The <code>historical_average_forc()</code> function produces an <em>h</em> period ahead forecast based on the historical average of the series that is being forecasted. The function takes an average function, a vector of realized values, an integer number of periods ahead to forecast, a period to end the initial average estimation and begin forecasting, an optional vector of time data associated with the realized values, and an optional integer number of past periods to estimate the average over. The historical average is originally calculated with realized values up to <code>estimation_end</code> minus the number of periods specified in <code>estimation_window</code>. If <code>estimation_window</code> is left <code>NULL</code> then the historical average is calculated with all available realized values up to <code>estimation_end</code>. In each period the historical average is set as the <code>h_ahead</code> period ahead forecast. This process is iteratively repeated for each period after <code>estimation_end</code> with the historical average updating in each period as more information would have become available to the forecaster.</p>
+<p>If <code>avg_function</code> is set to <code>mean</code>, in the sample <em>i</em>, for each period <em>p</em> greater than or equal to <code>estimation_end</code>, <code>h_ahead</code> <em>h</em> forecasts are calculated as:</p>
 <p><span class="math display">\[ 
 forecast_{p+h} = \frac{1}{p-w} \sum_{i=p-w}^{p}{Y_i} \qquad
 \]</span></p>
 <p>Where <em>Y</em> is the series being forecasted and <em>w</em> is the <code>estimation_window</code>.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">historical_mean_forc</span>(</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">realized_vec =</span> data<span class="sc">$</span>y,</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">h_ahead =</span> 2L,</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_end =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2011-03-31&quot;</span>),</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">time_vec =</span> data<span class="sc">$</span>date,</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_window =</span> 4L</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; h_ahead = 2 </span></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       origin     future forecast realized</span></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 2011-03-31 2011-09-30    1.626     2.89</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 2011-06-30 2011-12-31    1.678     2.11</span></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 2011-09-30 2012-03-31    1.914     2.97</span></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 2011-12-31 2012-06-30    2.118     0.99</span></span></code></pre></div>
-<p><code>historical_mean_forc()</code> returns a historical mean forecast where the <code>h_ahead</code> period ahead forecast is simply the historical mean or rolling window mean of the series being forecasted. This replicates the historical mean forecast that would have been produced in real time and can serve as a benchmark for other forecasting models.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">historical_average_forc</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">avg_function =</span> <span class="st">&quot;mean&quot;</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">realized_vec =</span> data<span class="sc">$</span>y,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">h_ahead =</span> 2L,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_end =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2011-03-31&quot;</span>),</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">time_vec =</span> data<span class="sc">$</span>date,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_window =</span> 4L</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; h_ahead = 2 </span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       origin     future forecast realized</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 2011-03-31 2011-09-30    1.626     2.89</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 2011-06-30 2011-12-31    1.678     2.11</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 2011-09-30 2012-03-31    1.914     2.97</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 2011-12-31 2012-06-30    2.118     0.99</span></span></code></pre></div>
+<p><code>historical_average_forc()</code> returns a historical average forecast where the <code>h_ahead</code> period ahead forecast is simply the historical average or rolling window average of the series being forecasted. This replicates the historical average forecast that would have been produced in real-time and can serve as a benchmark for other forecasting models.</p>
 </div>
 <div id="random_walk_forc-1" class="section level2">
 <h2>random_walk_forc</h2>
@@ -530,37 +544,41 @@ forecast_{p+h} = Y_p
 <span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 2010-06-30 2011-12-31     1.71     2.11</span></span>
 <span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 2010-09-30 2012-03-31     1.09     2.97</span></span>
 <span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 2010-12-31 2012-06-30     2.46     0.99</span></span></code></pre></div>
-<p><code>random_walk_forc()</code> returns a random walk forecast where the <code>h_ahead</code> period ahead forecast is simply the present value of the series being forecasted. This replicates the random walk forecast that a forecaster would have produced in real time and can serve as a benchmark for other forecasting models.</p>
+<p><code>random_walk_forc()</code> returns a random walk forecast where the <code>h_ahead</code> period ahead forecast is simply the present value of the series being forecasted. This replicates the random walk forecast that a forecaster would have produced in real-time and can serve as a benchmark for other forecasting models.</p>
 </div>
 <div id="autoreg_forc-1" class="section level2">
 <h2>autoreg_forc</h2>
-<p>The <code>autoreg_forc()</code> function produces an <em>h</em> period ahead forecast based on an autoregressive (AR) model. The function takes a vector of realized values, an integer number of periods ahead to forecast, a period to end the initial model estimation and begin forecasting, an optional vector of time data associated with the realized values, and an optional integer number of past periods to estimate the autoregressive model over. An AR(<code>h_ahead</code>) autoregressive model is estimated with realized values up to <code>estimation_end</code> minus the number of periods specified in <code>estimation_window</code>. If <code>estimation_window</code> is left <code>NULL</code> then the autoregressive model is calculated with all realized values up to <code>estimation_end</code>. The AR(<code>h_ahead</code>) model is estimated by regressing a vector of realized values on the same vector of realized values that has been lagged by <code>h_ahead</code> steps. The AR coefficient of this model is multiplied by the present period realized value to create a forecast for <code>h_ahead</code> periods ahead. This process is iteratively repeated for each period after <code>estimation_end</code> as more information would have become available to the forecaster. In each period, coefficients are updated based on all available realized values if <code>estimation_window</code> is set to <code>NULL</code>, or a rolling window of past periods if <code>estimation_window</code> is set to an integer value.</p>
-<p>In the sample <em>i</em>, for each period <em>p</em> greater than or equal to <code>estimation_end</code>, coefficients are calculated as:</p>
+<p>The <code>autoreg_forc()</code> function produces an <em>h</em> period ahead forecast based on an autoregressive (AR) model. The function takes a vector of realized values, an integer number of periods ahead to forecast, an integer number of lags to include in the autoregressive model, a period to end the initial model estimation and begin forecasting, an optional vector of time data associated with the realized values, and an optional integer number of past periods to estimate the autoregressive model over. An AR(<code>ar_lags</code>) autoregressive model is originally estimated with realized values up to <code>estimation_end</code> minus the number of periods specified in <code>estimation_window</code>. If <code>estimation_window</code> is left <code>NULL</code> then the autoregressive model is estimated with all realized values up to <code>estimation_end</code>. The AR(<code>ar_lags</code>) model is estimated by regressing the vector of realized values on vectors of the same realized values that have been lagged by one to <code>ar_lags</code> steps. The AR coefficients of this model are multiplied by lagged values and the present period realized value to create a one period ahead forecast. If <code>h_ahead</code> is greater than one, the one period ahead forecasting process is iteratively repeated so that the two period ahead forecast conditions on the one period ahead forecasted value. This process of rolling one period ahead forecasts forward continues until an <code>h_ahead</code> forecast is obtained. The <code>h_ahead</code> forecasting process is repeated for each period after <code>estimation_end</code> with AR model coefficients updating as more information would have become available to the forecaster. In each period, coefficients are updated based on all available realized values if <code>estimation_window</code> is set to <code>NULL</code>, or a rolling window of past periods if <code>estimation_window</code> is set to an integer value.</p>
+<p>In the sample <em>i</em> with <code>ar_lags</code> set to two and <code>h_ahead</code> set to two. For each period <em>p</em> greater than or equal to <code>estimation_end</code>, coefficients are calculated as:</p>
 <p><span class="math display">\[
-Y_i = \beta_0 + \beta_1 Y_{i-h}
+Y_i = \beta_0 + \beta_1 Y_{i-1} + \beta_2 Y_{i-2}
 \qquad \text{for all} \quad p-w \leq i \leq \text{p}
-\]</span> Where <em>Y</em> is the series being forecasted, <em>w</em> is the <code>estimation_window</code>, and <em>h</em> is <code>h_ahead</code>. <code>h_ahead</code> <em>h</em> forecasts are estimated as:</p>
+\]</span> Where <em>Y</em> is the series being forecasted and <em>w</em> is the <code>estimation_window</code>. <code>h_ahead</code> two step ahead forecasts are estimated as:</p>
 <p><span class="math display">\[
-forecast_{p+h} = \beta_0 + \beta_1 Y_p 
+Y_{p+1} = \beta_0 + \beta_1 Y_p + \beta_2 Y_{p-1} \\
+forecast_{p+h} = Y_{p+2} = \beta_0 + \beta_1 Y_{p+1} + \beta_2 Y_{p}
 \]</span></p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">autoreg_forc</span>(</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">realized_vec =</span> data<span class="sc">$</span>y,</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">h_ahead =</span> 2L,</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_end =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2011-06-30&quot;</span>),</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">time_vec =</span> data<span class="sc">$</span>date,</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_window =</span> <span class="cn">NULL</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; h_ahead = 2 </span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       origin     future forecast realized</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 2011-06-30 2011-12-31 1.660397     2.11</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 2011-09-30 2012-03-31 2.146489     2.97</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 2011-12-31 2012-06-30 2.022103     0.99</span></span></code></pre></div>
-<p><code>autoreg_forc()</code> returns an autoressive forecast based on information that would have been available at the forecast origin. This function replicates the autoregressive forecast that would have been produced in real time and can serve as a benchmark for other forecasting models.</p>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">ar_lags =</span> 2L,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_end =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2011-06-30&quot;</span>),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">time_vec =</span> data<span class="sc">$</span>date,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_window =</span> <span class="cn">NULL</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">return_betas =</span> <span class="cn">FALSE</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; h_ahead = 2 </span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;       origin     future forecast realized</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 2011-06-30 2011-12-31 1.649380     2.11</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 2011-09-30 2012-03-31 2.376138     2.97</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 2011-12-31 2012-06-30 1.944882     0.99</span></span></code></pre></div>
+<p><code>autoreg_forc()</code> returns an autoressive forecast based on information that would have been available at the forecast origin. This function replicates the forecasts than an AR model would have produced in real-time and can serve as a benchmark for other forecasting models.</p>
 </div>
 <div id="mse_weighted_forc-1" class="section level2">
 <h2>mse_weighted_forc</h2>
-<p>The <code>mse_weighted_forc()</code> function produces a weighted average of multiple forecasts based on the recent performance of each forecast. The function takes two or more forecasts of the <code>Forecast</code> class, an evaluation window, and an error function. For each forecast period, the error function is used to calculate forecast accuracy over the past <code>eval_window</code> number of periods. The forecast accuracy of each forecast is then used to weight forecasts based on a weighting function. In each period, weights are calculated and used to create a weighted average forecast. We use a stylized example in which we create a weighted forecast of two forecasts: Y1 and Y2.</p>
+<p>The <code>mse_weighted_forc()</code> function produces a weighted average of multiple forecasts based on the recent performance of each forecast. The function takes two or more forecasts of the <code>Forecast</code> class, an evaluation window, and an error function. For each forecast period, the error function is used to calculate forecast accuracy over the past <code>eval_window</code> number of periods. The forecast accuracy of each forecast is then used to weight forecasts based on a weighting function. In each period, weights are calculated and used to create a weighted average forecast.</p>
+<p>We use a stylized example in which we create a weighted forecast of two forecasts: Y1 and Y2.</p>
 <p>For all periods <em>p</em> in the <em>k</em> number of forecasts <em>Y</em>, weights <em>W</em> are calculated over the <code>eval_window</code> <em>e</em> as:</p>
 <p><span class="math display">\[
 W_k = \frac{1/MSE(Y_{ki})}{1/\sum_{k=1}^{k}MSE(Y_{ki})} \qquad \text{where} 
@@ -613,7 +631,88 @@ forecast_p = Y1_pW_1 + Y2_pW_2
 <span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8  2010-12-31 2011-12-31 1.186461     2.11</span></span>
 <span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9  2011-03-31 2012-03-31 1.078011     2.97</span></span>
 <span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 2011-06-30 2012-06-30 0.893773     0.99</span></span></code></pre></div>
-<p>The <code>mse_weighted_forc()</code> function returns a weighted forecast of the Y1 and Y2 forecasts based on performance in recent periods. The weights used in each period can be returned to the Global Environment by setting <code>return_weights</code> to <code>TRUE</code>. Note that although we were only weighting performance over the past two periods, we have five <code>NA</code> forecasts. This reflects the <em>lmForc</em> philosophy of replicating what it would be like to forecast in real time. If a forecaster was making a forecast at <code>2010-06-30</code>, they would only have access to realized values up to <code>2010-06-30</code>, in this case the first two rows. This is why a weighted forecast with an <code>eval_window</code> of two can only be computed once the forecast origin becomes <code>2010-06-30</code> and the forecaster has access to two realized values. This function can be used to compute a weighted forecast for the present period or to test how a weighted forecast would have performed historically.</p>
+<p>The <code>mse_weighted_forc()</code> function returns a weighted forecast of the Y1 and Y2 forecasts based on performance in recent periods. The weights used in each period can be returned to the Global Environment by setting <code>return_weights</code> to <code>TRUE</code>. Note that although we were only weighting performance over the past two periods, we have five <code>NA</code> forecasts. This reflects the <em>lmForc</em> philosophy of replicating what it would be like to forecast in real-time. If a forecaster was making a forecast at <code>2010-06-30</code>, they would only have access to realized values up to <code>2010-06-30</code>, in this case the first two rows. This is why a weighted forecast with an <code>eval_window</code> of two can only be computed once the forecast origin becomes <code>2010-06-30</code> and the forecaster has access to two realized values. This function can be used to compute a weighted forecast for the present period or to test how a weighted forecast would have performed historically. The weighted forecasts are based on information that <strong>would</strong> have been available to the forecaster at the forecast origin.</p>
+</div>
+<div id="states_weighted_forc-1" class="section level2">
+<h2>states_weighted_forc</h2>
+<p>The <code>states_weighted_forc()</code> function produces a weighted average of multiple forecasts based on how each forecast performed during the past state of the world that is most similar to the current state of the world. The function takes two or more forecasts, a data frame, matrix, or array of matching variables, an optional vector of time data associated with the matching variables, a matching window size, a matching function, and an error function. The first step of the weighted forecast process is to match the current state of the world to a similar past state of the world. For each forecast period, the <code>matching_vars</code> are standardized and the past <code>matching_window</code> periods of the matching variables are considered as the current state of the world. This current state of the world is compared to all past <code>matching_window</code> size periods of the matching variables. The current state is matched to the past state that minimizes the user selected matching function. For example, if <code>matching</code> is set to <code>euclidean</code> then the matched past state is the past state which has the minimum euclidean distance to the current state of the world. The objective is to select a past period that is similar to the current state of the world as given by the matching variables. Once a past state has been matched, the accuracy of each forecast is calculated over the periods of the past state according to the user selected error function. Forecast weights are then computed based on forecast accuracy during the past state. The objective is to give more weight to the forecasts that perform better in conditions that reflect the current state of the world. The forecast weights are then used to create a weighted forecast for the current period.</p>
+<p>We use a stylized example with one matching variable <em>x</em> as well as two forecasts <em>Y1</em> and <em>Y2</em>.</p>
+<p>The matching variable <em>x</em> is first standardized using the function:</p>
+<p><span class="math display">\[
+x_i = \frac{x_i - mean(x)}{sd(x)}
+\]</span></p>
+<p>For all periods <em>p</em>, the current state of the world <em>c</em> and past states of the world <em>p</em> are calculated as:</p>
+<p><span class="math display">\[
+c_i = x_i \qquad \text{where} \quad p-w \leq i \leq p \\
+\qquad \qquad \qquad \qquad p_{id} = x_i \qquad \text{where} \quad d-w \leq i \leq d \quad \text{for all} \quad d \lt p-w
+\]</span></p>
+<p>Where <em>w</em> is the <code>matching_window</code> size and <em>d</em> are all periods that occur before the beginning of the current state.</p>
+<p>All possible past states are passed through the matching function and the matched past state is selected as the past state that minimizes the matching function. If <code>matching</code> is set to <code>euclidean</code>, the matched past state <em>p</em> is the past state that satisfies the following:</p>
+<p><span class="math display">\[
+p = \min \sqrt{\sum_{i=1}^{n}(c_i - p_{id})^2} \qquad \text{for all past states } d 
+\]</span></p>
+<p>Forecast accuracy and forecast weights are computed over observations from the matched past state <em>p</em>. If <code>errors</code> is set to <code>mse</code> then the forecast weights <em>W</em> for each forecast <em>k</em> are calculated as.</p>
+<p><span class="math display">\[
+W_k = \frac{1/MSE(Y_{kp})}{1/\sum_{k=1}^{k}MSE(Y_{kp})} 
+\]</span></p>
+<p>The current period forecast is then calculated as:</p>
+<p><span class="math display">\[
+forecast_p = Y1_pW_1 + Y2_pW_2
+\]</span></p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>date <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">&quot;2010-03-31&quot;</span>, <span class="st">&quot;2010-06-30&quot;</span>, <span class="st">&quot;2010-09-30&quot;</span>, <span class="st">&quot;2010-12-31&quot;</span>,</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;2011-03-31&quot;</span>, <span class="st">&quot;2011-06-30&quot;</span>, <span class="st">&quot;2011-09-30&quot;</span>, <span class="st">&quot;2011-12-31&quot;</span>,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>                  <span class="st">&quot;2012-03-31&quot;</span>, <span class="st">&quot;2012-06-30&quot;</span>))</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>future <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">&quot;2011-03-31&quot;</span>, <span class="st">&quot;2011-06-30&quot;</span>, <span class="st">&quot;2011-09-30&quot;</span>, <span class="st">&quot;2011-12-31&quot;</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;2012-03-31&quot;</span>, <span class="st">&quot;2012-06-30&quot;</span>, <span class="st">&quot;2012-09-30&quot;</span>, <span class="st">&quot;2012-12-31&quot;</span>,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>                    <span class="st">&quot;2013-03-31&quot;</span>, <span class="st">&quot;2013-06-30&quot;</span>))</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>y  <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">1.09</span>, <span class="fl">1.71</span>, <span class="fl">1.09</span>, <span class="fl">2.46</span>, <span class="fl">1.78</span>, <span class="fl">1.35</span>, <span class="fl">2.89</span>, <span class="fl">2.11</span>, <span class="fl">2.97</span>, <span class="fl">0.99</span>)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">4.22</span>, <span class="fl">3.86</span>, <span class="fl">4.27</span>, <span class="fl">5.60</span>, <span class="fl">5.11</span>, <span class="fl">4.31</span>, <span class="fl">4.92</span>, <span class="fl">5.80</span>, <span class="fl">6.30</span>, <span class="fl">4.17</span>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">10.03</span>, <span class="fl">10.49</span>, <span class="fl">10.85</span>, <span class="fl">10.47</span>, <span class="fl">9.09</span>, <span class="fl">10.91</span>, <span class="fl">8.68</span>, <span class="fl">9.91</span>, <span class="fl">7.87</span>, <span class="fl">6.63</span>)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(date, y, x1, x2)</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>matching_vars <span class="ot">&lt;-</span> data[, <span class="fu">c</span>(<span class="st">&quot;x1&quot;</span>, <span class="st">&quot;x2&quot;</span>)]</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>y1_forecast <span class="ot">&lt;-</span> <span class="fu">Forecast</span>(</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">origin =</span> date,</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">future =</span> future,</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">forecast =</span> <span class="fu">c</span>(<span class="fl">1.33</span>, <span class="fl">1.36</span>, <span class="fl">1.38</span>, <span class="fl">1.68</span>, <span class="fl">1.60</span>, <span class="fl">1.55</span>, <span class="fl">1.32</span>, <span class="fl">1.22</span>, <span class="fl">1.08</span>, <span class="fl">0.88</span>),</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">realized =</span> <span class="fu">c</span>(<span class="fl">1.78</span>, <span class="fl">1.35</span>, <span class="fl">2.89</span>, <span class="fl">2.11</span>, <span class="fl">2.97</span>, <span class="fl">0.99</span>, <span class="fl">1.31</span>, <span class="fl">1.41</span>, <span class="fl">1.02</span>, <span class="fl">1.05</span>),</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">h_ahead =</span> 4L</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>y2_forecast <span class="ot">&lt;-</span> <span class="fu">Forecast</span>(</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">origin =</span> date,</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">future =</span> future,</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">forecast =</span> <span class="fu">c</span>(<span class="fl">0.70</span>, <span class="fl">0.88</span>, <span class="fl">1.03</span>, <span class="fl">1.05</span>, <span class="fl">1.01</span>, <span class="fl">0.82</span>, <span class="fl">0.95</span>, <span class="fl">1.09</span>, <span class="fl">1.07</span>, <span class="fl">1.06</span>),</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">realized =</span> <span class="fu">c</span>(<span class="fl">1.78</span>, <span class="fl">1.35</span>, <span class="fl">2.89</span>, <span class="fl">2.11</span>, <span class="fl">2.97</span>, <span class="fl">0.99</span>, <span class="fl">1.31</span>, <span class="fl">1.41</span>, <span class="fl">1.02</span>, <span class="fl">1.05</span>),</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">h_ahead =</span> 4L</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a><span class="fu">states_weighted_forc</span>(</span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>  y1_forecast, y2_forecast,</span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">matching_vars =</span> matching_vars,</span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">time_vec =</span> data<span class="sc">$</span>date,</span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">matching_window =</span> 2L,</span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">matching =</span> <span class="st">&quot;euclidean&quot;</span>,</span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">errors =</span> <span class="st">&quot;mse&quot;</span>,</span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">return_weights =</span> <span class="cn">FALSE</span></span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; h_ahead = 4 </span></span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;        origin     future forecast realized</span></span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1  2010-03-31 2011-03-31       NA     1.78</span></span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2  2010-06-30 2011-06-30       NA     1.35</span></span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3  2010-09-30 2011-09-30       NA     2.89</span></span>
+<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4  2010-12-31 2011-12-31       NA     2.11</span></span>
+<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5  2011-03-31 2012-03-31       NA     2.97</span></span>
+<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6  2011-06-30 2012-06-30 1.456977     0.99</span></span>
+<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 7  2011-09-30 2012-09-30 1.211438     1.31</span></span>
+<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 8  2011-12-31 2012-12-31 1.174534     1.41</span></span>
+<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 9  2012-03-31 2013-03-31 1.077066     1.02</span></span>
+<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10 2012-06-30 2013-06-30 0.932814     1.05</span></span></code></pre></div>
+<p>The <code>states_weighted_forc()</code> function returns a weighted forecast of the Y1 and Y2 forecasts based on how these forecasts performed in past states of the world that resemble the current state of the world. The weights used in each period and a list of the matched states can be returned to the Global Environment by setting <code>return_weights</code> to <code>TRUE</code>. This function can be used to compute a states weighted forecast for the present period or to test how a states weighted forecast would have performed historically. The states weighted forecasts are based on information that <strong>would</strong> have been available to the forecaster at the forecast origin.</p>
 <p></br> </br></p>
 </div>
 

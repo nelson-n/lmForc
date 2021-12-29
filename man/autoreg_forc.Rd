@@ -7,9 +7,11 @@
 autoreg_forc(
   realized_vec,
   h_ahead,
+  ar_lags,
   estimation_end,
   time_vec = NULL,
-  estimation_window = NULL
+  estimation_window = NULL,
+  return_betas = FALSE
 )
 }
 \arguments{
@@ -19,6 +21,8 @@ being forecasted.}
 \item{h_ahead}{Integer representing the number of periods ahead that is being
 forecasted.}
 
+\item{ar_lags}{Integer representing the number of lags included in the AR model.}
+
 \item{estimation_end}{Value of any class representing when to end the initial
 coefficient estimation period and begin forecasting.}
 
@@ -27,6 +31,10 @@ coefficient estimation period and begin forecasting.}
 
 \item{estimation_window}{Integer representing the number of past periods
 that the autoregressive model should be estimated over in each period.}
+
+\item{return_betas}{Boolean, selects whether the coefficients used in each
+period to create the forecast are returned. If TRUE, a data frame of
+betas is returned to the Global Environment.}
 }
 \value{
 \code{\link{Forecast}} object that contains the autoregression
@@ -34,42 +42,53 @@ forecast.
 }
 \description{
 \code{autoreg_forc} takes a vector of realized values, an integer number of
-periods ahead to forecast, a period to end the initial model estimation and
+periods ahead to forecast, an integer number of lags to include in the
+autoregressive model, a period to end the initial model estimation and
 begin forecasting, an optional vector of time data associated with the
 realized values, and an optional integer number of past periods to estimate
-the model over. An AR(\code{h_ahead}) autoregressive model is estimated with realized
-values up to \code{estimation_end} minus the number of periods specified in
-\code{estimation_window}. If \code{estimation_window} is left \code{NULL}
+the model over. An AR(\code{ar_lags}) autoregressive model is originally estimated
+with realized values up to \code{estimation_end} minus the number of periods specified
+in \code{estimation_window}. If \code{estimation_window} is left \code{NULL}
 then the autoregressive model is estimated with all realized values up to
-\code{estimation_end}. The AR(\code{h_ahead}) model is estimated by regressing the
+\code{estimation_end}. The AR(\code{ar_lags}) model is estimated by regressing the
 realized values on the same realized values that have been lagged by
-\code{h_ahead} steps. The AR coefficient of this model is multiplied by the
-present period realized value to create a forecast for \code{h_ahead} periods
-ahead. This process is iteratively repeated for each period after
-\code{estimation_end} with AR model coefficients updating as more information
-would have become available to the forecaster. Returns an autoregression
-forecast based on information that \strong{would} have been available at the
-forecast origin.
+one to \code{ar_lags} steps. The AR coefficients of this model are multiplied by
+lagged values and the present period realized value to create a forecast for
+one period ahead. If \code{h_ahead} is greater than one, this process of
+forecasting one period ahead is iteratively repeated so that the two period
+ahead forecast conditions on the one period ahead forecasted value and so
+on until a \code{h_ahead} forecast is obtained. This forecasting process is
+repeated for each period after \code{estimation_end} with AR model coefficients
+updating as more information would have become available to the forecaster.
+Optionally returns the coefficients used to create each forecast.
+Returns an autoregression forecast based on information that \strong{would}
+have been available at the forecast origin and replicates the forecasts that an
+AR model would have produced in real-time.
 }
 \examples{
 date <- as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31",
-                  "2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31", 
-                  "2012-03-31", "2012-06-30"))
-y  <- c(1.09, 1.71, 1.09, 2.46, 1.78, 1.35, 2.89, 2.11, 2.97, 0.99)
+                  "2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31",
+                  "2012-03-31", "2012-06-30", "2012-09-30", "2012-12-31"))
+y <- c(1.09, 1.71, 1.09, 2.46, 1.78, 1.35, 2.89, 2.11, 2.97, 0.99, 1.31, 2.33)
 data <- data.frame(date, y)
 
 autoreg_forc(
   realized_vec = data$y,
-  h_ahead = 2L,
+  h_ahead = 1L,
+  ar_lags = 2L,
   estimation_end = as.Date("2011-06-30"),
   time_vec = data$date,
-  estimation_window = NULL
+  estimation_window = 4L,
+  return_betas = FALSE
 )
 
 autoreg_forc(
   realized_vec = data$y,
-  h_ahead = 2L,
-  estimation_end = 4L
+  h_ahead = 4L,
+  ar_lags = 4L,
+  estimation_end = 4L,
+  time_vec = NULL,
+  estimation_window = NULL
 )
 
 }

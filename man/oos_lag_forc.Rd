@@ -9,7 +9,8 @@ oos_lag_forc(
   h_ahead,
   estimation_end,
   time_vec = NULL,
-  estimation_window = NULL
+  estimation_window = NULL,
+  return_betas = FALSE
 )
 }
 \arguments{
@@ -46,9 +47,9 @@ realized values of the covariates to create a forecast for \code{h_ahead}
 periods ahead. This process is iteratively repeated for each period after
 \code{estimation_end} with coefficients updating in each period. Returns an
 out-of-sample forecast conditional on realized values that \strong{would}
-have been available at the forecast origin. Tests the out-of-sample
-performance of a linear model had it been lagged and conditioned on available
-information.
+have been available at the forecast origin. Optionally returns the coefficients
+used to create each forecast. Tests the out-of-sample performance of a linear
+model had it been lagged and conditioned on available information.
 }
 \examples{
 date <- as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31",
@@ -64,7 +65,8 @@ oos_lag_forc(
   h_ahead = 2L,
   estimation_end = as.Date("2011-03-31"),
   time_vec = data$date,
-  estimation_window = NULL
+  estimation_window = NULL,
+  return_betas = FALSE
 )
 
 oos_lag_forc(

@@ -29,10 +29,11 @@ library(lmForc)
 #### [oos_lag_forc]
 #### [oos_vintage_forc]
 #### [conditional_forc]
-#### [historical_mean_forc]
+#### [historical_average_forc]
 #### [random_walk_forc]
 #### [autoreg_forc]
 #### [mse_weighted_forc]
+#### [states_weighted_forc]
 
 ## lmForc Motivation
 
@@ -43,7 +44,7 @@ models to be tested in multiple ways, both in-sample and out-out-sample. The
 philosophy that compliments the features of linear models: One, the syntax for
 creating linear models is simple and the syntax for testing them should be 
 equally simple. Two, performance tests should be realistic and when possible
-replicate what it would have been like to forecast in real time.
+replicate what it would have been like to forecast in real-time.
 
 ## Forecast Class
 
@@ -103,29 +104,42 @@ populated with a vector of `NA` values.
 
 The `Forecast` class strikes a balance between simplicity and rigor. It is 
 simple enough to store any numeric forecast, but it is rigorous enough to create
-a useful data structure. For example, we can quickly calculate the MSE or RMSE
-of the `Forecast` object we created above with only one argument.
+a useful data structure. For example, we can quickly calculate a number of 
+forecast accuracy metrics for the `Forecast` object we created above using only 
+one argument.
 
 ```{r}
 mse(my_forecast)
 rmse(my_forecast)
+mae(my_forecast)
+mape(my_forecast)
+R2(my_forecast)
 ```
 
 Because the `forecast` and `realized` slots must be numeric vectors, and all 
-slots must be of the same length, we do not have to worry about input validation 
-or coercing multiple vectors to the correct format when calculating MSE or RMSE.
+slots must be of the same length, we can calculate forecast accuracy metrics
+without having to worry about input validation or coercing multiple vectors to 
+the correct format. The forecast accuracy metrics available in the *lmForc* package 
+are calculated as follows where:
+$$
+n = \text{forecast vector length}\\
+\quad Y_i = \text{realized values}\\
+\hat{Y_i} = \text{forecast values}
+$$
 
 MSE is calculated as:
-
 $$
-\hspace{8.45cm} n = \text{forecast vector length}\\[.20cm]
-MSE = \frac{1}{n} \sum_{i=1}^{n}{(Y_i - \hat{Y_i})^2} 
-\qquad \text{where} \quad Y_i = \text{realized values} \\
-\hspace{7.3cm} \hat{Y_i} = \text{forecast values}
+MSE = \frac{1}{n} \sum_{i=1}^{n}{(Y_i - \hat{Y_i})^2}
 $$
 
 RMSE is calculated as:
 $$ RMSE = \sqrt{MSE}  $$
+MAE is calculated as:
+$$ MAE = \frac{1}{n} \sum_{i=1}^{n}{|\hat{Y_i} - Y_i|} $$
+MAPE is calculated as:
+$$ MAPE = \frac{1}{n} \sum_{i=1}^{n}\frac{|Y_i - \hat{Y_i}|}{{Y_i}} $$
+R2 is calculated as:
+$$ R^2 = cor(\hat{Y_i}, \ Y_i)^2 $$
 
 Note that these equations require two inputs, but because both inputs are 
 already stored in the `Forecast` object we only need to pass one argument to the
@@ -145,12 +159,12 @@ out-of-sample performance of both models.
 One fear may be that the novel `Forecast` class will not play well with 
 functions and packages that already exist in the R language. The *lmForc*
 package provides methods for accessing all of the vectors stored in a `Forecast`
-object as well as the `collect()` function which returns one or multiple 
+object as well as the `forc2df()` function which returns one or multiple 
 `Forecast` objects as a data frame. With these methods, one can easily pass the
 data in a `Forecast` object to other functions.
 
 ```{r}
-collect(my_forecast)
+forc2df(my_forecast)
 
 origin(my_forecast)
 
@@ -258,7 +272,8 @@ oos_realized_forc(
   h_ahead = 2L,
   estimation_end = as.Date("2011-03-31"),
   time_vec = data$date,
-  estimation_window = NULL
+  estimation_window = NULL,
+  return_betas = FALSE
 )
 ```
 
@@ -306,7 +321,8 @@ oos_lag_forc(
   h_ahead = 2L,
   estimation_end = as.Date("2011-03-31"),
   time_vec = data$date,
-  estimation_window = NULL
+  estimation_window = NULL,
+  return_betas = FALSE
 )
 ```
 
@@ -370,12 +386,14 @@ x2_forecast_vintage <- Forecast(
 oos_vintage_forc(
   lm_call = lm(y ~ x1 + x2, data),
   time_vec = data$date,
-  x1_forecast_vintage, x2_forecast_vintage
+  x1_forecast_vintage, x2_forecast_vintage,
+  estimation_window = NULL,
+  return_betas = FALSE
 )
 ```
 
 This test replicates the forecasts that a linear model conditional on forecasts 
-of covariates would have produced in real time. Here we see the strength of the
+of covariates would have produced in real-time. Here we see the strength of the
 `Forecast` class. Because the vintage forecasts of X1 and X2 share the same data
 structure, we can calculate a forecast that is conditional on these objects 
 without fearing inconsistency across inputs.
@@ -439,24 +457,24 @@ a forecast made at a specific period in the past. Note that because we are
 forecasting into the future, `realized` is `NULL`. Also, because we are 
 forecasting a horizon of dates, `h_ahead` is `NULL`.
 
-## historical_mean_forc
+## historical_average_forc
 
-The `historical_mean_forc()` function produces an *h* period ahead forecast based
-on the historical mean of the series that is being forecasted. The function takes 
-a vector of realized values, an integer number of periods ahead to forecast, a period 
-to end the initial mean estimation and begin forecasting, an optional vector of time 
-data associated with the realized values, and an optional integer number of past 
-periods to estimate the mean over. The historical mean is originally calculated 
-with realized values up to `estimation_end` minus the number of periods specified 
-in `estimation_window`. If `estimation_window` is left `NULL` then the historical 
-mean is calculated with all available realized values up to `estimation_end`. In 
-each period the historical mean is set as the `h_ahead` period ahead forecast. 
-This process is iteratively repeated for each period after `estimation_end` with 
-the historical mean updating in each period as more information would have become 
+The `historical_average_forc()` function produces an *h* period ahead forecast based
+on the historical average of the series that is being forecasted. The function takes 
+an average function, a vector of realized values, an integer number of periods ahead 
+to forecast, a period to end the initial average estimation and begin forecasting, 
+an optional vector of time data associated with the realized values, and an optional 
+integer number of past periods to estimate the average over. The historical average
+is originally calculated with realized values up to `estimation_end` minus the number 
+of periods specified in `estimation_window`. If `estimation_window` is left `NULL` 
+then the historical average is calculated with all available realized values up to 
+`estimation_end`. In each period the historical average is set as the `h_ahead` period 
+ahead forecast. This process is iteratively repeated for each period after `estimation_end` 
+with the historical average updating in each period as more information would have become 
 available to the forecaster. 
 
-In the sample *i*, for each period *p* greater than or equal to `estimation_end`, 
-`h_ahead` *h* forecasts are calculated as:
+If `avg_function` is set to `mean`, in the sample *i*, for each period *p* greater than or 
+equal to `estimation_end`, `h_ahead` *h* forecasts are calculated as:
 
 $$ 
 forecast_{p+h} = \frac{1}{p-w} \sum_{i=p-w}^{p}{Y_i} \qquad
@@ -465,7 +483,8 @@ $$
 Where *Y* is the series being forecasted and *w* is the `estimation_window`. 
 
 ```{r}
-historical_mean_forc(
+historical_average_forc(
+  avg_function = "mean",
   realized_vec = data$y,
   h_ahead = 2L,
   estimation_end = as.Date("2011-03-31"),
@@ -474,10 +493,10 @@ historical_mean_forc(
 )
 ```
 
-`historical_mean_forc()` returns a historical mean forecast where the `h_ahead` 
-period ahead forecast is simply the historical mean or rolling window mean of the 
-series being forecasted. This replicates the historical mean forecast that would 
-have been produced in real time and can serve as a benchmark for other forecasting models.
+`historical_average_forc()` returns a historical average forecast where the `h_ahead` 
+period ahead forecast is simply the historical average or rolling window average of the 
+series being forecasted. This replicates the historical average forecast that would 
+have been produced in real-time and can serve as a benchmark for other forecasting models.
 
 ## random_walk_forc
 
@@ -507,53 +526,62 @@ random_walk_forc(
 `random_walk_forc()` returns a random walk forecast where the `h_ahead`
 period ahead forecast is simply the present value of the series being forecasted. 
 This replicates the random walk forecast that a forecaster would have produced
-in real time and can serve as a benchmark for other forecasting models.
+in real-time and can serve as a benchmark for other forecasting models.
 
 ## autoreg_forc
 
 The `autoreg_forc()` function produces an *h* period ahead forecast based
 on an autoregressive (AR) model. The function takes a vector of realized values, 
-an integer number of periods ahead to forecast, a period to end the initial model 
-estimation and begin forecasting, an optional vector of time data associated with 
-the realized values, and an optional integer number of past periods to estimate 
-the autoregressive model over. An AR(`h_ahead`) autoregressive model is estimated
-with realized values up to `estimation_end` minus the number of periods specified 
-in `estimation_window`. If `estimation_window` is left `NULL` then the 
-autoregressive model is calculated with all realized values up to `estimation_end`. 
-The AR(`h_ahead`) model is estimated by regressing a vector of realized values on 
-the same vector of realized values that has been lagged by `h_ahead` steps. The AR coefficient of this model is multiplied by the present period realized value to create a forecast for `h_ahead` periods ahead. This process is iteratively repeated for each period
-after `estimation_end` as more information would have become available to the
-forecaster. In each period, coefficients are updated based on all available 
-realized values if `estimation_window` is set to `NULL`, or a rolling window of 
-past periods if `estimation_window` is set to an integer value.
+an integer number of periods ahead to forecast, an integer number of lags to include 
+in the autoregressive model, a period to end the initial model estimation and begin 
+forecasting, an optional vector of time data associated with the realized values, 
+and an optional integer number of past periods to estimate the autoregressive model 
+over. An AR(`ar_lags`) autoregressive model is originally estimated with realized values up to
+`estimation_end` minus the number of periods specified in `estimation_window`. If 
+`estimation_window` is left `NULL` then the autoregressive model is estimated with 
+all realized values up to `estimation_end`. The AR(`ar_lags`) model is estimated by 
+regressing the vector of realized values on vectors of the same realized values that 
+have been lagged by one to `ar_lags` steps. The AR coefficients of this model are 
+multiplied by lagged values and the present period realized value to create a one 
+period ahead forecast. If `h_ahead` is greater than one, the one period ahead forecasting 
+process is iteratively repeated so that the two period ahead forecast conditions on 
+the one period ahead forecasted value. This process of rolling one period ahead forecasts 
+forward continues until an `h_ahead` forecast is obtained. The `h_ahead` forecasting process 
+is repeated for each period after `estimation_end` with AR model coefficients updating as 
+more information would have become available to the forecaster. In each period, coefficients 
+are updated based on all available realized values if `estimation_window` is set to `NULL`, 
+or a rolling window of past periods if `estimation_window` is set to an integer value.
 
-In the sample *i*, for each period *p* greater than or equal to `estimation_end`, 
-coefficients are calculated as:
+In the sample *i* with `ar_lags` set to two and `h_ahead` set to two. For each period *p* 
+greater than or equal to `estimation_end`, coefficients are calculated as:
 
 $$
-Y_i = \beta_0 + \beta_1 Y_{i-h}
+Y_i = \beta_0 + \beta_1 Y_{i-1} + \beta_2 Y_{i-2}
 \qquad \text{for all} \quad p-w \leq i \leq \text{p}
 $$
-Where *Y* is the series being forecasted, *w* is the `estimation_window`, 
-and *h* is `h_ahead`. `h_ahead` *h* forecasts are estimated as:
+Where *Y* is the series being forecasted and *w* is the `estimation_window`.
+`h_ahead` two step ahead forecasts are estimated as:
 
 $$
-forecast_{p+h} = \beta_0 + \beta_1 Y_p 
+Y_{p+1} = \beta_0 + \beta_1 Y_p + \beta_2 Y_{p-1} \\
+forecast_{p+h} = Y_{p+2} = \beta_0 + \beta_1 Y_{p+1} + \beta_2 Y_{p}
 $$
 
 ```{r}
 autoreg_forc(
   realized_vec = data$y,
   h_ahead = 2L,
+  ar_lags = 2L,
   estimation_end = as.Date("2011-06-30"),
   time_vec = data$date,
-  estimation_window = NULL
+  estimation_window = NULL,
+  return_betas = FALSE
 )
 ```
 
 `autoreg_forc()` returns an autoressive forecast based on information that would
-have been available at the forecast origin. This function replicates the autoregressive
-forecast that would have been produced in real time and can serve as a 
+have been available at the forecast origin. This function replicates the forecasts
+than an AR model would have produced in real-time and can serve as a 
 benchmark for other forecasting models.
 
 ## mse_weighted_forc
@@ -565,6 +593,7 @@ error function. For each forecast period, the error function is used to calculat
 forecast accuracy over the past `eval_window` number of periods. The forecast 
 accuracy of each forecast is then used to weight forecasts based on a weighting function. 
 In each period, weights are calculated and used to create a weighted average forecast. 
+
 We use a stylized example in which we create a weighted forecast of two forecasts: 
 Y1 and Y2. 
 
@@ -616,17 +645,139 @@ mse_weighted_forc(
 
 The `mse_weighted_forc()` function returns a weighted forecast of the Y1 and Y2
 forecasts based on performance in recent periods. The weights used  in each 
-period can be returned to the Global Environment by setting 
-`return_weights` to `TRUE`. Note that although we were only weighting 
-performance over the past two periods, we have five `NA` forecasts. This 
-reflects the *lmForc* philosophy of replicating what it would be like to
-forecast in real time. If a forecaster was making a forecast at `2010-06-30`,
-they would only have access to realized values up to `2010-06-30`, in this case
-the first two rows. This is why a weighted forecast with an `eval_window` of two
-can only be computed once the forecast origin becomes `2010-06-30` and the 
-forecaster has access to two realized values. This function can be used to 
-compute a weighted forecast for the present period or to test how a weighted 
-forecast would have performed historically.
+period can be returned to the Global Environment by setting `return_weights` to 
+`TRUE`. Note that although we were only weighting performance over the past two 
+periods, we have five `NA` forecasts. This reflects the *lmForc* philosophy of 
+replicating what it would be like to forecast in real-time. If a forecaster was 
+making a forecast at `2010-06-30`, they would only have access to realized values 
+up to `2010-06-30`, in this case the first two rows. This is why a weighted forecast 
+with an `eval_window` of two can only be computed once the forecast origin becomes 
+`2010-06-30` and the forecaster has access to two realized values. This function 
+can be used to compute a weighted forecast for the present period or to test how 
+a weighted forecast would have performed historically. The weighted forecasts are
+based on information that **would** have been available to the forecaster at the 
+forecast origin.
+
+## states_weighted_forc
+
+The `states_weighted_forc()` function produces a weighted average of multiple
+forecasts based on how each forecast performed during the past state of the world that is 
+most similar to the current state of the world. The function takes two or more 
+forecasts, a data frame, matrix, or array of matching variables, an optional 
+vector of time data associated with the matching variables, a matching window 
+size, a matching function, and an error function. The first step of the weighted
+forecast process is to match the current state of the world to a similar past 
+state of the world. For each forecast period, the `matching_vars` are standardized
+and the past `matching_window` periods of the matching variables are considered 
+as the current state of the world. This current state of the world is compared to 
+all past `matching_window` size periods of the matching variables. The current
+state is matched to the past state that minimizes the user selected matching function.
+For example, if `matching` is set to `euclidean` then the matched past state is
+the past state which has the minimum euclidean distance to the current state of 
+the world. The objective is to select a past period that is similar to the current 
+state of the world as given by the matching variables. Once a past state has been
+matched, the accuracy of each forecast is calculated over the periods of the past
+state according to the user selected error function. Forecast weights are then computed
+based on forecast accuracy during the past state. The objective is to give more weight to 
+the forecasts that perform better in conditions that reflect the current state
+of the world. The forecast weights are then used to create a weighted forecast for
+the current period.
+
+We use a stylized example with one matching variable *x* as well as two forecasts
+*Y1* and *Y2*. 
+
+The matching variable *x* is first standardized using the function:
+
+$$
+x_i = \frac{x_i - mean(x)}{sd(x)}
+$$
+
+For all periods *p*, the current state of the world *c* and past states of the 
+world *p* are calculated as:
+
+$$
+c_i = x_i \qquad \text{where} \quad p-w \leq i \leq p \\
+\qquad \qquad \qquad \qquad p_{id} = x_i \qquad \text{where} \quad d-w \leq i \leq d \quad \text{for all} \quad d \lt p-w
+$$
+
+Where *w* is the `matching_window` size and *d* are all periods that occur before 
+the beginning of the current state.
+
+All possible past states are passed through the matching function and the matched
+past state is selected as the past state that minimizes the matching function.
+If `matching` is set to `euclidean`, the matched past state *p* is the past 
+state that satisfies the following:
+
+$$
+p = \min \sqrt{\sum_{i=1}^{n}(c_i - p_{id})^2} \qquad \text{for all past states } d 
+$$
+
+Forecast accuracy and forecast weights are computed over observations from the
+matched past state *p*. If `errors` is set to `mse` then the forecast weights
+*W* for each forecast *k* are calculated as.
+
+$$
+W_k = \frac{1/MSE(Y_{kp})}{1/\sum_{k=1}^{k}MSE(Y_{kp})} 
+$$
+
+The current period forecast is then calculated as:
+
+$$
+forecast_p = Y1_pW_1 + Y2_pW_2
+$$
+
+```{r}
+date <- as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31",
+                  "2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31",
+                  "2012-03-31", "2012-06-30"))
+
+future <- as.Date(c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31",
+                    "2012-03-31", "2012-06-30", "2012-09-30", "2012-12-31",
+                    "2013-03-31", "2013-06-30"))
+
+y  <- c(1.09, 1.71, 1.09, 2.46, 1.78, 1.35, 2.89, 2.11, 2.97, 0.99)
+x1 <- c(4.22, 3.86, 4.27, 5.60, 5.11, 4.31, 4.92, 5.80, 6.30, 4.17)
+x2 <- c(10.03, 10.49, 10.85, 10.47, 9.09, 10.91, 8.68, 9.91, 7.87, 6.63)
+
+data <- data.frame(date, y, x1, x2)
+matching_vars <- data[, c("x1", "x2")]
+
+y1_forecast <- Forecast(
+  origin = date,
+  future = future,
+  forecast = c(1.33, 1.36, 1.38, 1.68, 1.60, 1.55, 1.32, 1.22, 1.08, 0.88),
+  realized = c(1.78, 1.35, 2.89, 2.11, 2.97, 0.99, 1.31, 1.41, 1.02, 1.05),
+  h_ahead = 4L
+)
+
+y2_forecast <- Forecast(
+  origin = date,
+  future = future,
+  forecast = c(0.70, 0.88, 1.03, 1.05, 1.01, 0.82, 0.95, 1.09, 1.07, 1.06),
+  realized = c(1.78, 1.35, 2.89, 2.11, 2.97, 0.99, 1.31, 1.41, 1.02, 1.05),
+  h_ahead = 4L
+)
+
+states_weighted_forc(
+  y1_forecast, y2_forecast,
+  matching_vars = matching_vars,
+  time_vec = data$date,
+  matching_window = 2L,
+  matching = "euclidean",
+  errors = "mse",
+  return_weights = FALSE
+)
+```
+
+The `states_weighted_forc()` function returns a weighted forecast of the Y1 and 
+Y2 forecasts based on how these forecasts performed in past states of the world
+that resemble the current state of the world. The weights used in each period 
+and a list of the matched states can be returned to the Global Environment by 
+setting `return_weights` to `TRUE`. This function can be used to compute a 
+states weighted forecast for the present period or to test how a states weighted
+forecast would have performed historically. The states weighted forecasts are
+based on information that **would** have been available to the forecaster
+at the forecast origin.
 
 </br>
 </br>

@@ -19,14 +19,10 @@
 vector of the forecast.
 }
 \examples{
-my_forecast <- Forecast(
-   origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-   future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-   forecast = c(4.21, 4.27, 5.32, 5.11),
-   realized = c(4.40, 4.45, 4.87, 4.77),
-   h_ahead  = 4L
-)
+\dontrun{
 
-forc(my_forecast) <- c(8.87, 7.61, 7.56, 5.96)
+forc(Forecast) <- c(2.45, 2.76, 3.31)
+
+}
 
 }

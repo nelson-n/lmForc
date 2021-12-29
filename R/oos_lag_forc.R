@@ -15,9 +15,9 @@
 #' periods ahead. This process is iteratively repeated for each period after
 #' \code{estimation_end} with coefficients updating in each period. Returns an
 #' out-of-sample forecast conditional on realized values that \strong{would}
-#' have been available at the forecast origin. Tests the out-of-sample
-#' performance of a linear model had it been lagged and conditioned on available
-#' information.
+#' have been available at the forecast origin. Optionally returns the coefficients 
+#' used to create each forecast. Tests the out-of-sample performance of a linear 
+#' model had it been lagged and conditioned on available information.
 #'
 #' @param lm_call Linear model call of the class lm.
 #' @param h_ahead Integer representing the number of periods ahead that is being
@@ -50,7 +50,8 @@
 #'   h_ahead = 2L,
 #'   estimation_end = as.Date("2011-03-31"),
 #'   time_vec = data$date,
-#'   estimation_window = NULL
+#'   estimation_window = NULL,
+#'   return_betas = FALSE
 #' )
 #'
 #' oos_lag_forc(
@@ -67,7 +68,7 @@
 #' @export
 
 oos_lag_forc <- function(lm_call, h_ahead, estimation_end, time_vec = NULL,
-  estimation_window = NULL) {
+  estimation_window = NULL, return_betas = FALSE) {
 
   # Input validation.
   if (class(lm_call) != "lm") {
@@ -113,8 +114,8 @@ oos_lag_forc <- function(lm_call, h_ahead, estimation_end, time_vec = NULL,
   }
 
   if (is.null(time_vec) == FALSE) {
-    estimation_end <- which(time_vec <= estimation_end)
-    estimation_end <- estimation_end[length(estimation_end)]
+    estimation_end <- which(time_vec < estimation_end)
+    estimation_end <- estimation_end[length(estimation_end)] + 1
   }
   
   # Verify there is enough data before estimation_end to estimate the model.
@@ -149,6 +150,8 @@ oos_lag_forc <- function(lm_call, h_ahead, estimation_end, time_vec = NULL,
   future   <- time_vec[oos_index + h_ahead]
   forecast <- vector(mode = "double", length = length(oos_index))
   realized <- lm_call$model[[1]][oos_index + h_ahead]
+  
+  betas <- vector(mode = "list", length = length(oos_index))
 
   # Run forecasting loop.
   for (i in 1:length(oos_index)) {
@@ -171,10 +174,19 @@ oos_lag_forc <- function(lm_call, h_ahead, estimation_end, time_vec = NULL,
     
     train_lm   <- eval(lm_call$call)
     coefs      <- train_lm$coefficients
+    betas[[i]] <- coefs
 
     realized_vals <- lm_call$model[index, ]
     forecast[[i]] <- coefs[[1]] + sum(coefs[2:length(coefs)] * realized_vals[2:length(realized_vals)])
 
+  }
+  
+  if (return_betas == TRUE) {
+    betas <- data.frame(do.call(rbind, betas))
+    betas <- cbind(origin, betas)
+    colnames(betas) <- paste0(colnames(betas), "_beta")
+    colnames(betas)[1:2] <- c("origin", "intercept")
+    betas <<- betas
   }
 
   Forecast(origin = origin, future = future, forecast = forecast,

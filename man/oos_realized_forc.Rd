@@ -9,7 +9,8 @@ oos_realized_forc(
   h_ahead,
   estimation_end,
   time_vec = NULL,
-  estimation_window = NULL
+  estimation_window = NULL,
+  return_betas = FALSE
 )
 }
 \arguments{
@@ -26,6 +27,10 @@ in \code{lm_call}.}
 
 \item{estimation_window}{Integer representing the number of past periods
 that the linear model should be estimated over in each period.}
+
+\item{return_betas}{Boolean, selects whether the coefficients used in each
+period to create the forecast are returned. If TRUE, a data frame of
+betas is returned to the Global Environment.}
 }
 \value{
 \code{\link{Forecast}} object that contains the out-of-sample
@@ -45,8 +50,9 @@ covariates \code{h_ahead} periods ahead to create an \code{h_ahead} period
 ahead forecast. This process is iteratively repeated for each period after
 \code{estimation_end} with coefficients updating in each period. Returns an
 out-of-sample forecast conditional on realized values that \strong{would not}
-have been available at the forecast origin. Tests the out-of-sample
-performance of a linear model had it been conditioned on perfect information.
+have been available at the forecast origin. Optionally returns the coefficients
+used to create each forecast. Tests the out-of-sample performance of a linear
+model had it been conditioned on perfect information.
 }
 \examples{
 date <- as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31",
@@ -62,7 +68,8 @@ oos_realized_forc(
   h_ahead = 2L,
   estimation_end = as.Date("2011-03-31"),
   time_vec = data$date,
-  estimation_window = NULL
+  estimation_window = NULL,
+  return_betas = FALSE
 )
 
 }

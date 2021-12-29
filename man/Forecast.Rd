@@ -21,10 +21,6 @@ value at the future time.}
 \item{h_ahead}{Optional length-one object representing the number of periods
 ahead being forecasted.}
 }
-\value{
-\code{\link{Forecast}} object that contains \code{origin},
-\code{future}, \code{forecast}, \code{realized}, and \code{h_ahead} slots.
-}
 \description{
 An S4 class for storing forecasts. An object of the Forecast class has equal
 length vectors that contain the time the forecast was made, the future time

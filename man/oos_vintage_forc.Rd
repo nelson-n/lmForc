@@ -4,7 +4,13 @@
 \alias{oos_vintage_forc}
 \title{Out-of-sample linear model forecast conditioned on vintage forecasts}
 \usage{
-oos_vintage_forc(lm_call, time_vec, ..., estimation_window = NULL)
+oos_vintage_forc(
+  lm_call,
+  time_vec,
+  ...,
+  estimation_window = NULL,
+  return_betas = FALSE
+)
 }
 \arguments{
 \item{lm_call}{Linear model call of the class lm.}
@@ -17,6 +23,10 @@ covariate in the linear model.}
 
 \item{estimation_window}{Integer representing the number of past periods
 that the linear model should be estimated over in each period.}
+
+\item{return_betas}{Boolean, selects whether the coefficients used in each
+period to create the forecast are returned. If TRUE, a data frame of
+betas is returned to the Global Environment.}
 }
 \value{
 \code{\link{Forecast}} object that contains the out-of-sample
@@ -32,8 +42,9 @@ specified in \code{estimation_window}. If \code{estimation_window} is left
 \code{NULL} then the linear model is estimated with all available data up to
 the current period. Coefficients are then multiplied by vintage forecast values.
 Returns an out-of-sample forecast conditional on vintage forecasts that
-\strong{would} have been available at the forecast origin. Replicates the
-forecasts that a linear model would have produced in real time.
+\strong{would} have been available at the forecast origin. Optionally returns
+the coefficients used to create each forecast. Replicates the forecasts that a
+linear model would have produced in real time.
 }
 \examples{
 date <- as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31",
@@ -63,20 +74,15 @@ x2_forecast_vintage <- Forecast(
 oos_vintage_forc(
   lm_call = lm(y ~ x1 + x2, data),
   time_vec = data$date,
-  x1_forecast_vintage, x2_forecast_vintage
-)
-
-oos_vintage_forc(
-  lm_call = lm(y ~ x1 + x2, data),
-  time_vec = data$date,
-  x1_forecast_vintage, x2_forecast_vintage
-)
-
-oos_vintage_forc(
-  lm_call = lm(y ~ x1 + x2, data),
-  time_vec = data$date,
   x1_forecast_vintage, x2_forecast_vintage,
-  estimation_window = 4L
+  estimation_window = 4L,
+  return_betas = FALSE
+)
+
+oos_vintage_forc(
+  lm_call = lm(y ~ x1 + x2, data),
+  time_vec = data$date,
+  x1_forecast_vintage, x2_forecast_vintage
 )
 
 }

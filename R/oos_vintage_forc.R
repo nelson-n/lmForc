@@ -10,8 +10,9 @@
 #' \code{NULL} then the linear model is estimated with all available data up to
 #' the current period. Coefficients are then multiplied by vintage forecast values. 
 #' Returns an out-of-sample forecast conditional on vintage forecasts that 
-#' \strong{would} have been available at the forecast origin. Replicates the 
-#' forecasts that a linear model would have produced in real time.
+#' \strong{would} have been available at the forecast origin. Optionally returns 
+#' the coefficients used to create each forecast. Replicates the forecasts that a 
+#' linear model would have produced in real time.
 #'
 #' @param lm_call Linear model call of the class lm.
 #' @param time_vec Vector of any class that is equal in length to the data
@@ -20,7 +21,10 @@
 #'   covariate in the linear model.
 #' @param estimation_window Integer representing the number of past periods 
 #'   that the linear model should be estimated over in each period. 
-#'
+#' @param return_betas Boolean, selects whether the coefficients used in each 
+#'   period to create the forecast are returned. If TRUE, a data frame of 
+#'   betas is returned to the Global Environment.
+#'   
 #' @return \code{\link{Forecast}} object that contains the out-of-sample
 #'   forecast.
 #'
@@ -56,20 +60,15 @@
 #' oos_vintage_forc(
 #'   lm_call = lm(y ~ x1 + x2, data),
 #'   time_vec = data$date,
-#'   x1_forecast_vintage, x2_forecast_vintage
-#' )
-#' 
-#' oos_vintage_forc(
-#'   lm_call = lm(y ~ x1 + x2, data),
-#'   time_vec = data$date,
-#'   x1_forecast_vintage, x2_forecast_vintage
-#' )
-#' 
-#' oos_vintage_forc(
-#'   lm_call = lm(y ~ x1 + x2, data),
-#'   time_vec = data$date,
 #'   x1_forecast_vintage, x2_forecast_vintage,
-#'   estimation_window = 4L
+#'   estimation_window = 4L,
+#'   return_betas = FALSE
+#' )
+#' 
+#' oos_vintage_forc(
+#'   lm_call = lm(y ~ x1 + x2, data),
+#'   time_vec = data$date,
+#'   x1_forecast_vintage, x2_forecast_vintage
 #' )
 #' 
 
@@ -79,7 +78,7 @@
 
 #' @export
 
-oos_vintage_forc <- function(lm_call, time_vec, ..., estimation_window = NULL) {
+oos_vintage_forc <- function(lm_call, time_vec, ..., estimation_window = NULL, return_betas = FALSE) {
 
   forecasts <- list(...)
   num_coefs <- length(lm_call$coefficients)
@@ -151,6 +150,8 @@ oos_vintage_forc <- function(lm_call, time_vec, ..., estimation_window = NULL) {
   realized <- lm_call$model[[1]][match(forecasts[[1]]@future, time_vec)]
   h_ahead  <- forecasts[[1]]@h_ahead
 
+  betas <- vector(mode = "list", length = length(origin_vec))
+  
   # Run forecast loop.
   for (i in 1:length(origin_vec)) {
 
@@ -168,11 +169,20 @@ oos_vintage_forc <- function(lm_call, time_vec, ..., estimation_window = NULL) {
 
     coefs  <- train_lm$coefficients
     covars <- sapply(forecasts, function(x) x@forecast[i])
+    betas[[i]] <- coefs
 
     forecast[[i]] <- coefs[[1]] + sum(coefs[2:length(coefs)] * covars)
 
   }
 
+  if (return_betas == TRUE) {
+    betas <- data.frame(do.call(rbind, betas))
+    betas <- cbind(origin, betas)
+    colnames(betas) <- paste0(colnames(betas), "_beta")
+    colnames(betas)[1:2] <- c("origin", "intercept")
+    betas <<- betas
+  }
+  
   Forecast(origin = origin, future = future, forecast = forecast,
            realized = realized, h_ahead = h_ahead)
 

@@ -18,8 +18,8 @@ accuracy is evaluated using mean squared errors or root mean squared
 errors.}
 
 \item{return_weights}{Boolean, selects whether the weights used to weight
-forecasts in each period are returned. If TRUE, a data frame of weights is returned to the
-Global Environment.}
+forecasts in each period are returned. If TRUE, a data frame of weights is
+returned to the Global Environment.}
 }
 \value{
 \code{\link{Forecast}} object that contains the weighted forecast.

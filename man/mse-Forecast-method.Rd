@@ -18,14 +18,15 @@ forecast. MSE is calculated as:
 \code{1/length(forecast) * sum((realized - forecast)^2)}
 }
 \examples{
+
 my_forecast <- Forecast(
-   origin   = c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31"),
-   future   = c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31"),
-   forecast = c(4.21, 4.27, 5.32, 5.11),
-   realized = c(4.40, 4.45, 4.87, 4.77),
-   h_ahead  = 4L
+  origin   = as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31")),
+  future   = as.Date(c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31")),
+  forecast = c(4.21, 4.27, 5.32, 5.11),
+  realized = c(4.40, 4.45, 4.87, 4.77),
+  h_ahead  = 4L
 )
 
-mse(my_forecast)
+mse(Forecast)
 
 }

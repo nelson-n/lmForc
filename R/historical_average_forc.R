@@ -1,34 +1,37 @@
 
-#' Historical mean forecast
+#' Historical average forecast
 #'
-#' \code{historical_mean_forc} takes a vector of realized values, an 
-#' integer number of periods ahead to forecast, a period to end the initial 
-#' mean estimation and begin forecasting, an optional vector of time data 
+#' \code{historical_average_forc} takes an average function, a vector of realized 
+#' values, an integer number of periods ahead to forecast, a period to end the initial 
+#' average estimation and begin forecasting, an optional vector of time data 
 #' associated with the realized values, and an optional integer number of past
-#' periods to estimate the mean over. The historical mean is originally 
+#' periods to estimate the average over.  The historical average is originally 
 #' calculated with realized values up to \code{estimation_end} minus the number 
 #' of periods specified in \code{estimation_window}. If \code{estimation_window}
-#' is left \code{NULL} then the historical mean is calculated with all available
+#' is left \code{NULL} then the historical average is calculated with all available
 #' realized values up to \code{estimation_end}. In each period the historical
-#' mean is set as the \code{h_ahead} period ahead forecast. This process is 
+#' average is set as the \code{h_ahead} period ahead forecast. This process is 
 #' iteratively repeated for each period after \code{estimation_end} with the 
-#' historical mean updating in each period as more information would have 
-#' become available to the forecaster. Returns a historical mean forecast where
-#' the \code{h_ahead} period ahead forecast is simply the historical mean or
-#' rolling window mean of the series being forecasted.
+#' historical average updating in each period as more information would have 
+#' become available to the forecaster. Returns a historical average forecast where
+#' the \code{h_ahead} period ahead forecast is simply the historical average or
+#' rolling window average of the series being forecasted. 
 #'
+#' @param avg_function Character, either "mean" or "median". Selects whether 
+#'   forecasts are made using the historical mean or historical median of 
+#'   the series.
 #' @param realized_vec Vector of realized values. This is the series that is 
 #'   being forecasted.
 #' @param h_ahead Integer representing the number of periods ahead that is being
 #'   forecasted.
 #' @param estimation_end Value of any class representing when to end the initial
-#'   mean estimation period and begin forecasting.
+#'   average estimation period and begin forecasting.
 #' @param time_vec Vector of any class that is equal in length to the
 #'   \code{realized_vec} vector.
 #' @param estimation_window Integer representing the number of past periods 
-#'   that the historical mean should be estimated over in each period. 
+#'   that the historical average should be estimated over in each period. 
 #'
-#' @return \code{\link{Forecast}} object that contains the historical mean
+#' @return \code{\link{Forecast}} object that contains the historical average
 #'   forecast.
 #'
 #' @seealso
@@ -42,7 +45,8 @@
 #' y  <- c(1.09, 1.71, 1.09, 2.46, 1.78, 1.35, 2.89, 2.11, 2.97, 0.99)
 #' data <- data.frame(date, y)
 #'
-#' historical_mean_forc(
+#' historical_average_forc(
+#'   avg_function = "mean",
 #'   realized_vec = data$y,
 #'   h_ahead = 2L,
 #'   estimation_end = as.Date("2011-03-31"),
@@ -50,23 +54,30 @@
 #'   estimation_window = 4L
 #' )
 #'  
-#' historical_mean_forc(
+#' historical_average_forc(
+#'   avg_function = "median",
 #'   realized_vec = data$y,
 #'   h_ahead = 4L,
 #'   estimation_end = 4L
 #' )
 #'  
+#' @importFrom stats median
+#' 
  
 #===============================================================================
-# Historical Mean Forecast
+# Historical Average Forecast
 #===============================================================================
 
 #' @export
 
-historical_mean_forc <- function(realized_vec, h_ahead, estimation_end,
-  time_vec = NULL, estimation_window = NULL) {
+historical_average_forc <- function(avg_function, realized_vec, h_ahead, 
+  estimation_end, time_vec = NULL, estimation_window = NULL) {
   
   # Input validation.
+  if (!(avg_function %in% c("mean", "median"))) {
+    stop('* avg_function must be either "mean" or "median": avg_function = "mean"')
+  }
+  
   if (is.integer(h_ahead) != TRUE) {
     stop("* h_ahead must be an integer: h_ahead = 4L")
   }
@@ -99,14 +110,23 @@ historical_mean_forc <- function(realized_vec, h_ahead, estimation_end,
     stop("* estimation_window must be of length one: estimation_end = 20L")
   }
   
+  # Select avg_function.
+  if (avg_function == "mean") {
+    avg_func <- eval(base::mean)
+  }
+  
+  if (avg_function == "median") {
+    avg_func <- eval(stats::median)
+  }
+  
   # Prepare inputs for forecasting loop.
   if (is.null(time_vec) == TRUE) {
     time_vec <- 1:length(realized_vec)
   }
   
   if (is.null(time_vec) == FALSE) {
-    estimation_end <- which(time_vec <= estimation_end)
-    estimation_end <- estimation_end[length(estimation_end)]
+    estimation_end <- which(time_vec < estimation_end)
+    estimation_end <- estimation_end[length(estimation_end)] + 1
   }
   
   # Verify there is enough data after estimation_end to produce a forecast.
@@ -138,7 +158,7 @@ historical_mean_forc <- function(realized_vec, h_ahead, estimation_end,
       }
     }
   
-    forecast[[i]] <- mean(train_data)
+    forecast[[i]] <- avg_func(train_data, na.rm = TRUE)
   
   }
   

@@ -19,9 +19,12 @@ my_forecast <- Forecast(
 ## -----------------------------------------------------------------------------
 mse(my_forecast)
 rmse(my_forecast)
+mae(my_forecast)
+mape(my_forecast)
+R2(my_forecast)
 
 ## -----------------------------------------------------------------------------
-collect(my_forecast)
+forc2df(my_forecast)
 
 origin(my_forecast)
 
@@ -58,7 +61,8 @@ oos_realized_forc(
   h_ahead = 2L,
   estimation_end = as.Date("2011-03-31"),
   time_vec = data$date,
-  estimation_window = NULL
+  estimation_window = NULL,
+  return_betas = FALSE
 )
 
 ## -----------------------------------------------------------------------------
@@ -67,7 +71,8 @@ oos_lag_forc(
   h_ahead = 2L,
   estimation_end = as.Date("2011-03-31"),
   time_vec = data$date,
-  estimation_window = NULL
+  estimation_window = NULL,
+  return_betas = FALSE
 )
 
 ## -----------------------------------------------------------------------------
@@ -90,7 +95,9 @@ x2_forecast_vintage <- Forecast(
 oos_vintage_forc(
   lm_call = lm(y ~ x1 + x2, data),
   time_vec = data$date,
-  x1_forecast_vintage, x2_forecast_vintage
+  x1_forecast_vintage, x2_forecast_vintage,
+  estimation_window = NULL,
+  return_betas = FALSE
 )
 
 ## -----------------------------------------------------------------------------
@@ -117,7 +124,8 @@ conditional_forc(
 )
 
 ## -----------------------------------------------------------------------------
-historical_mean_forc(
+historical_average_forc(
+  avg_function = "mean",
   realized_vec = data$y,
   h_ahead = 2L,
   estimation_end = as.Date("2011-03-31"),
@@ -136,9 +144,11 @@ random_walk_forc(
 autoreg_forc(
   realized_vec = data$y,
   h_ahead = 2L,
+  ar_lags = 2L,
   estimation_end = as.Date("2011-06-30"),
   time_vec = data$date,
-  estimation_window = NULL
+  estimation_window = NULL,
+  return_betas = FALSE
 )
 
 ## -----------------------------------------------------------------------------
@@ -169,6 +179,48 @@ y2_forecast <- Forecast(
 mse_weighted_forc(
   y1_forecast, y2_forecast,
   eval_window = 2L,
+  errors = "mse",
+  return_weights = FALSE
+)
+
+## -----------------------------------------------------------------------------
+date <- as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31",
+                  "2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31",
+                  "2012-03-31", "2012-06-30"))
+
+future <- as.Date(c("2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31",
+                    "2012-03-31", "2012-06-30", "2012-09-30", "2012-12-31",
+                    "2013-03-31", "2013-06-30"))
+
+y  <- c(1.09, 1.71, 1.09, 2.46, 1.78, 1.35, 2.89, 2.11, 2.97, 0.99)
+x1 <- c(4.22, 3.86, 4.27, 5.60, 5.11, 4.31, 4.92, 5.80, 6.30, 4.17)
+x2 <- c(10.03, 10.49, 10.85, 10.47, 9.09, 10.91, 8.68, 9.91, 7.87, 6.63)
+
+data <- data.frame(date, y, x1, x2)
+matching_vars <- data[, c("x1", "x2")]
+
+y1_forecast <- Forecast(
+  origin = date,
+  future = future,
+  forecast = c(1.33, 1.36, 1.38, 1.68, 1.60, 1.55, 1.32, 1.22, 1.08, 0.88),
+  realized = c(1.78, 1.35, 2.89, 2.11, 2.97, 0.99, 1.31, 1.41, 1.02, 1.05),
+  h_ahead = 4L
+)
+
+y2_forecast <- Forecast(
+  origin = date,
+  future = future,
+  forecast = c(0.70, 0.88, 1.03, 1.05, 1.01, 0.82, 0.95, 1.09, 1.07, 1.06),
+  realized = c(1.78, 1.35, 2.89, 2.11, 2.97, 0.99, 1.31, 1.41, 1.02, 1.05),
+  h_ahead = 4L
+)
+
+states_weighted_forc(
+  y1_forecast, y2_forecast,
+  matching_vars = matching_vars,
+  time_vec = data$date,
+  matching_window = 2L,
+  matching = "euclidean",
   errors = "mse",
   return_weights = FALSE
 )

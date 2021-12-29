@@ -21,8 +21,8 @@
 #'   accuracy is evaluated using mean squared errors or root mean squared
 #'   errors.
 #' @param return_weights Boolean, selects whether the weights used to weight
-#'   forecasts in each period are returned. If TRUE, a data frame of weights is returned to the
-#'   Global Environment.
+#'   forecasts in each period are returned. If TRUE, a data frame of weights is 
+#'   returned to the Global Environment.
 #'
 #' @return \code{\link{Forecast}} object that contains the weighted forecast.
 #'
@@ -119,18 +119,7 @@ mse_weighted_forc <- function(..., eval_window, errors = "mse", return_weights =
   }
 
   # Select error function.
-  if (errors == "mse") {
-    error_function <- mse
-  }
-
-  if (errors == "rmse") {
-    error_function <- rmse
-  }
-
-  # Find forecast names.
-  argnames   <- sys.call()
-  argnames   <- unlist(lapply(argnames[-1], as.character))
-  forc_names <- paste0(argnames[1:length(forecasts)])
+  error_function <- eval(parse(text = errors))
 
   # For each future value, find the latest origin in all forecasts.
   origin_vecs <- lapply(forecasts, function(x) x@origin)
@@ -147,9 +136,9 @@ mse_weighted_forc <- function(..., eval_window, errors = "mse", return_weights =
   
   # Find OOS forecast period and prepare forecasting loop.
   forecast_periods <- which(origin_vec >= forecasts[[1]]@future[eval_window])
-  eval_period <- length(forecast_periods)
-  weighted_forc   <- vector(mode = "numeric", length = eval_period)
-  weights         <- vector(mode = "list", length = eval_period)
+  eval_period      <- length(forecast_periods)
+  weighted_forc    <- vector(mode = "numeric", length = eval_period)
+  weights          <- vector(mode = "list", length = eval_period)
 
   for (i in 1:eval_period) {
 
@@ -172,6 +161,11 @@ mse_weighted_forc <- function(..., eval_window, errors = "mse", return_weights =
   }
 
   if (return_weights == TRUE) {
+
+    # Find forecast names.
+    argnames   <- sys.call()
+    argnames   <- unlist(lapply(argnames[-1], as.character))
+    forc_names <- paste0(argnames[1:length(forecasts)])
 
     weights <- data.frame(do.call(rbind, weights))
 
