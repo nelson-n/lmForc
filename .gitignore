@@ -4,4 +4,6 @@ inst/doc
 /doc/
 /.Rhistory/
 /CRAN-RELEASE/
+/.DS_store/
+/.gitignore/
 
