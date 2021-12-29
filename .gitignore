@@ -3,6 +3,7 @@ inst/doc
 /cran-comments.md
 /doc/
 /.Rhistory/
+/.Rbuildignore/
 /CRAN-RELEASE/
 /.DS_store/
 /.gitignore/
