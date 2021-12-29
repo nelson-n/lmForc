@@ -30,7 +30,7 @@ The R package *lmForc* introduces functions for testing linear model forecasts a
 
 For an overview of the *lmForc* package, please read the vignette: [lmForc Vignette](https://cran.r-project.org/web/packages/lmForc/vignettes/lmForc.html)
 
-<a href='https://github.com/lucius-verus-fan/lmForc/blob/main/vignettes/vignette_demo.png'><img src='/vignettes/logo/lmForc_hexSticker.png' align="center" height="250" /></a>
+<a href='https://cran.r-project.org/web/packages/lmForc/vignettes/lmForc.html'><img src='/vignettes/vignette_demo.png' align="center" height="250" /></a>
 
 ## Installation
 
