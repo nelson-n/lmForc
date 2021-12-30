@@ -196,6 +196,7 @@ setMethod("show", "Forecast", function(object) {
 #' str(my_forecast)
 #'
 #' @importFrom utils str
+#' @importFrom utils capture.output
 #'
 #' @export
 
@@ -712,7 +713,7 @@ setMethod("h_ahead", "Forecast", function(Forecast) Forecast@h_ahead)
 #'   h_ahead  = 4L
 #' )
 #' 
-#' mse(Forecast)
+#' mse(my_forecast)
 #' 
 #' @export
 
@@ -738,7 +739,7 @@ setGeneric("mse", function(Forecast) standardGeneric("mse"))
 #'   h_ahead  = 4L
 #' )
 #' 
-#' mse(Forecast)
+#' mse(my_forecast)
 #' 
 #' @export
 
@@ -770,7 +771,7 @@ setMethod("mse", "Forecast", function(Forecast) {
 #'   h_ahead  = 4L
 #' )
 #' 
-#' rmse(Forecast)
+#' rmse(my_forecast)
 #' 
 #' @export
 
@@ -795,7 +796,7 @@ setGeneric("rmse", function(Forecast) standardGeneric("rmse"))
 #'   h_ahead  = 4L
 #' )
 #' 
-#' rmse(Forecast)
+#' rmse(my_forecast)
 #' 
 #' @export
 
@@ -823,7 +824,7 @@ setMethod("rmse", "Forecast", function(Forecast) {
 #'   h_ahead  = 4L
 #' )
 #' 
-#' mae(Forecast)
+#' mae(my_forecast)
 #' 
 #' @export
 
@@ -849,7 +850,7 @@ setGeneric("mae", function(Forecast) standardGeneric("mae"))
 #'   h_ahead  = 4L
 #' )
 #' 
-#' mae(Forecast)
+#' mae(my_forecast)
 #' 
 #' @export
 
@@ -881,7 +882,7 @@ setMethod("mae", "Forecast", function(Forecast) {
 #'   h_ahead  = 4L
 #' )
 #' 
-#' mape(Forecast)
+#' mape(my_forecast)
 #'
 #' @export
 
@@ -907,7 +908,7 @@ setGeneric("mape", function(Forecast) standardGeneric("mape"))
 #'   h_ahead  = 4L
 #' )
 #' 
-#' mape(Forecast)
+#' mape(my_forecast)
 #'
 #' @export
 
@@ -940,7 +941,7 @@ setMethod("mape", "Forecast", function(Forecast) {
 #'   h_ahead  = 4L
 #' )
 #' 
-#' R2(Forecast)
+#' R2(my_forecast)
 #'
 #' @export
 
@@ -966,7 +967,7 @@ setGeneric("R2", function(Forecast) standardGeneric("R2"))
 #'   h_ahead  = 4L
 #' )
 #' 
-#' R2(Forecast)
+#' R2(my_forecast)
 #' 
 #' @importFrom stats cor
 #'

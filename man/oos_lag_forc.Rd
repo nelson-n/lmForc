@@ -27,6 +27,10 @@ in \code{lm_call}.}
 
 \item{estimation_window}{Integer representing the number of past periods
 that the linear model should be estimated over in each period.}
+
+\item{return_betas}{Boolean, selects whether the coefficients used in each
+period to create the forecast are returned. If TRUE, a data frame of
+betas is returned to the Global Environment.}
 }
 \value{
 \code{\link{Forecast}} object that contains the out-of-sample

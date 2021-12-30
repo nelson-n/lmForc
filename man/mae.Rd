@@ -27,6 +27,6 @@ my_forecast <- Forecast(
   h_ahead  = 4L
 )
 
-mae(Forecast)
+mae(my_forecast)
 
 }

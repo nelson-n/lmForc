@@ -27,6 +27,6 @@ my_forecast <- Forecast(
   h_ahead  = 4L
 )
 
-R2(Forecast)
+R2(my_forecast)
 
 }

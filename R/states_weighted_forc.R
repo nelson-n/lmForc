@@ -96,6 +96,8 @@
 #'   errors = "rmse"
 #' )
 #' 
+#' @importFrom stats sd
+#' 
 
 #===============================================================================
 # States Weighted Forecast
@@ -107,6 +109,7 @@ states_weighted_forc <- function(..., matching_vars, time_vec = NULL, matching_w
   matching = "euclidean", errors = "mse", return_weights = FALSE) {
   
   forecasts <- list(...)
+  weights_out <- NULL
   
   # If time_vec is null create numeric time_vec.
   if (is.null(time_vec) == TRUE) {
@@ -190,7 +193,7 @@ states_weighted_forc <- function(..., matching_vars, time_vec = NULL, matching_w
   }
 
   # Standardization function. 
-  standardize <- function(x) (x - mean(x)) / sd(x)
+  standardize <- function(x) (x - mean(x)) / stats::sd(x)
   
   # Matching functions.
   euclidean <- function(x, y) sqrt(sum((x - y)^2))

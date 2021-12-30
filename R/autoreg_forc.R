@@ -67,7 +67,7 @@
 #' autoreg_forc(
 #'   realized_vec = data$y,
 #'   h_ahead = 4L,
-#'   ar_lags = 4L,
+#'   ar_lags = 2L,
 #'   estimation_end = 4L,
 #'   time_vec = NULL,
 #'   estimation_window = NULL

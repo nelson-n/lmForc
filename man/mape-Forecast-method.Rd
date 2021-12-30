@@ -27,6 +27,6 @@ my_forecast <- Forecast(
   h_ahead  = 4L
 )
 
-mape(Forecast)
+mape(my_forecast)
 
 }
