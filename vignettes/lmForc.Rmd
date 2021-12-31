@@ -32,7 +32,7 @@ library(lmForc)
 #### [historical_average_forc]
 #### [random_walk_forc]
 #### [autoreg_forc]
-#### [mse_weighted_forc]
+#### [performance_weighted_forc]
 #### [states_weighted_forc]
 
 ## lmForc Motivation
@@ -153,7 +153,7 @@ passed to the function. Furthermore, all *lmForc* functions return objects of
 the `Forecast` class which creates synergy between functions. One
 can take two linear models, test their performance out-of-sample with the
 `oos_realized_forc()` function which returns `Forecast` objects, and then pass 
-these two objects to the `mse_weighted_forc()` function to find the weighted 
+these two objects to the `performance_weighted_forc()` function to find the weighted 
 out-of-sample performance of both models.
 
 One fear may be that the novel `Forecast` class will not play well with 
@@ -584,9 +584,9 @@ have been available at the forecast origin. This function replicates the forecas
 than an AR model would have produced in real-time and can serve as a 
 benchmark for other forecasting models.
 
-## mse_weighted_forc
+## performance_weighted_forc
 
-The `mse_weighted_forc()` function produces a weighted average of multiple 
+The `performance_weighted_forc()` function produces a weighted average of multiple 
 forecasts based on the recent performance of each forecast. The function takes
 two or more forecasts of the `Forecast` class, an evaluation window, and an 
 error function. For each forecast period, the error function is used to calculate 
@@ -635,7 +635,7 @@ y2_forecast <- Forecast(
   h_ahead = 4L
 )
 
-mse_weighted_forc(
+performance_weighted_forc(
   y1_forecast, y2_forecast,
   eval_window = 2L,
   errors = "mse",
@@ -643,7 +643,7 @@ mse_weighted_forc(
 )
 ```
 
-The `mse_weighted_forc()` function returns a weighted forecast of the Y1 and Y2
+The `performance_weighted_forc()` function returns a weighted forecast of the Y1 and Y2
 forecasts based on performance in recent periods. The weights used  in each 
 period can be returned to the Global Environment by setting `return_weights` to 
 `TRUE`. Note that although we were only weighting performance over the past two 

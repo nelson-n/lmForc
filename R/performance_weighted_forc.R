@@ -1,7 +1,7 @@
 
 #' MSE or RMSE weighted forecast
 #'
-#' \code{mse_weighted_forc} takes two or more forecasts, an evaluation window,
+#' \code{performance_weighted_forc} takes two or more forecasts, an evaluation window,
 #' and an error function. For each forecast period, the error function is used
 #' to calculate forecast accuracy over the past \code{eval_window} number of
 #' periods. The forecast accuracy of each forecast is used to weight forecasts
@@ -55,7 +55,7 @@
 #'   h_ahead = 4L
 #' )
 #'
-#' mse_weighted_forc(
+#' performance_weighted_forc(
 #'   y1_forecast, y2_forecast,
 #'   eval_window = 2L,
 #'   errors = "mse",
@@ -69,7 +69,7 @@
 
 #' @export
 
-mse_weighted_forc <- function(..., eval_window, errors = "mse", return_weights = FALSE) {
+performance_weighted_forc <- function(..., eval_window, errors = "mse", return_weights = FALSE) {
 
   forecasts <- list(...)
   weights_out <- NULL

@@ -71,14 +71,14 @@ pos10_2 <- (forc(y1_forecast)[10] * w1) + (forc(y2_forecast)[10] * w2)
 # True Evaluation
 #===============================================================================
 
-forc1 <- mse_weighted_forc(
+forc1 <- performance_weighted_forc(
   y1_forecast, y2_forecast,
   eval_window = 2L,
   errors = "mse",
   return_weights = FALSE
 )
 
-forc2 <- mse_weighted_forc(
+forc2 <- performance_weighted_forc(
   y1_forecast, y2_forecast,
   eval_window = 4L,
   errors = "rmse",

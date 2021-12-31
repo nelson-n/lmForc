@@ -39,3 +39,5 @@
 * Created `str` method for `Forecast` objects.
 
 * Added `states_weighted_forc()` function for computing state weighted forecasts.
+
+* Changed name of `mse_weighted_forc()` to `performance_weighted_forc()` to reflect that errors may be either MSE or RMSE.
