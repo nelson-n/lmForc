@@ -19,10 +19,11 @@ stable](https://img.shields.io/badge/lifecycle-stable-success.svg)](https://life
 The R package *lmForc* introduces functions for testing linear model
 forecasts and a new class for working with forecast data: Forecast. Test
 linear models out-of-sample by conditioning on realized values, vintage
-forecasts, or lagged values. Create and test performance weighted
-forecasts out-of-sample. Collect multiple forecasts and evaluate MSE or
-RMSE. These functions are all built around the Forecast class which
-matches the simplicity and interpretability of linear models.
+forecasts, or lagged values. Benchmark against AR models, historical
+average forecasts, or random walk forecasts. Create performance weighted
+or states weighted forecast combinations. These functions are built
+around the Forecast class which matches the simplicity and
+interpretability of linear models.
 
 ## Vignette
 
@@ -49,14 +50,14 @@ To install the **development** version from
 remotes::install_github("lucius-verus-fan/lmForc")
 ```
 
-## Example
+## Examples
 
-Produce an out-of-sample forecast conditioned on realized values. This
-test calculates linear model coefficients in each period based on
-information that would have been available to the forecaster. These
-coefficients are then combined with future realized values to compute a
-forecast. Evaluates the performance of a linear forecasting model had it
-been given perfect information.
+Produce an out-of-sample forecast conditioned on realized values.
+Calculates linear model coefficients in each period based on information
+that would have been available to the forecaster. Coefficients are
+combined with future realized values to compute a conditional forecast.
+Evaluates the performance of a linear model had it been conditioned on
+perfect information.
 
 ``` r
 library(lmForc)
@@ -88,15 +89,16 @@ forecast1
 #> 4 2011-12-31 2012-06-30 2.708308     0.99
 ```
 
-Produce an out-of-sample forecast based on the historical mean. In each
-period the historical mean of the series is calculated based on
+Produce an out-of-sample forecast based on the historical median. In
+each period the historical median of the series is calculated based on
 information that would have been available to the forecaster. Replicates
-the historical mean forecast that would have been produced in real time
-and serves as a benchmark for other models.
+the historical median forecast that would have been produced in real
+time and serves as a benchmark for other models.
 
 ``` r
-# Historical Mean Forecast
-forecast2 <- historical_mean_forc(
+# Historical Median Forecast
+forecast2 <- historical_average_forc(
+  avg_function = "median",
   realized_vec = data$y,
   h_ahead = 2L,
   estimation_end = as.Date("2011-03-31"),
@@ -107,10 +109,10 @@ forecast2
 #> h_ahead = 2 
 #> 
 #>       origin     future forecast realized
-#> 1 2011-03-31 2011-09-30 1.626000     2.89
-#> 2 2011-06-30 2011-12-31 1.580000     2.11
-#> 3 2011-09-30 2012-03-31 1.767143     2.97
-#> 4 2011-12-31 2012-06-30 1.810000     0.99
+#> 1 2011-03-31 2011-09-30    1.710     2.89
+#> 2 2011-06-30 2011-12-31    1.530     2.11
+#> 3 2011-09-30 2012-03-31    1.710     2.97
+#> 4 2011-12-31 2012-06-30    1.745     0.99
 ```
 
 Compare the performance of both models by calculating RMSE forecast
@@ -120,5 +122,27 @@ error.
 rmse(forecast1)
 #> [1] 1.09634
 rmse(forecast2)
-#> [1] 0.9997326
+#> [1] 0.9857009
+```
+
+Create a performance weighted forecast combination of forecast1 and
+forecast2. In each period forecast accuracy is calculated over recent
+periods and each model is given a weight based on recent accuracy. The
+forecast for the next period is calculated as a weighted combination of
+both forecasts.
+
+``` r
+performance_weighted_forc(
+  forecast1, forecast2,
+  eval_window = 1L,
+  errors = "mse",
+  return_weights = FALSE
+)
+#> h_ahead = 2 
+#> 
+#>       origin     future forecast realized
+#> 1 2011-03-31 2011-09-30       NA     2.89
+#> 2 2011-06-30 2011-12-31       NA     2.11
+#> 3 2011-09-30 2012-03-31 2.502552     2.97
+#> 4 2011-12-31 2012-06-30 2.575770     0.99
 ```

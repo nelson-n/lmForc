@@ -104,13 +104,12 @@ rmse(forecast2)
 ```
 
 Create a performance weighted forecast combination of forecast1 and forecast2. In each period forecast 
-accuracy is calculated over recent periods and each model is given a weight based on recent accuracy. The 
-forecast for the next period is calculated as a weighted combination of both forecasts.
+accuracy is calculated over recent periods and each model is given a weight based on recent accuracy. The forecast for the next period is calculated as a weighted combination of both forecasts.
 
-```{r example3, message=FALSE}
-mse_weighted_forc(
+```{r example4, message=FALSE}
+performance_weighted_forc(
   forecast1, forecast2,
-  eval_window = 2L,
+  eval_window = 1L,
   errors = "mse",
   return_weights = FALSE
 )
