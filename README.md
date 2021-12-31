@@ -92,8 +92,8 @@ forecast1
 Produce an out-of-sample forecast based on the historical median. In
 each period the historical median of the series is calculated based on
 information that would have been available to the forecaster. Replicates
-the historical median forecast that would have been produced in real
-time and serves as a benchmark for other models.
+the historical median forecast that would have been produced in
+real-time and serves as a benchmark for other models.
 
 ``` r
 # Historical Median Forecast
@@ -125,8 +125,8 @@ rmse(forecast2)
 #> [1] 0.9857009
 ```
 
-Create a performance weighted forecast combination of forecast1 and
-forecast2. In each period forecast accuracy is calculated over recent
+Create a performance weighted forecast combination of `forecast1` and
+`forecast2`. In each period forecast accuracy is calculated over recent
 periods and each model is given a weight based on recent accuracy. The
 forecast for the next period is calculated as a weighted combination of
 both forecasts.
