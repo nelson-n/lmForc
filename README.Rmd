@@ -14,11 +14,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-# lmForc <a href='https://github.com/lucius-verus-fan/lmForc/blob/main/vignettes/logo/lmForc_hexSticker.png'><img src='/vignettes/logo/lmForc_hexSticker.png' align="right" height="200" /></a>
+# lmForc <a href='https://github.com/nelson-n/lmForc/blob/main/vignettes/logo/lmForc_hexSticker.png'><img src='/vignettes/logo/lmForc_hexSticker.png' align="right" height="200" /></a>
 <!-- badges: start -->
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/lmForc?color=brightgreen)](https://cran.r-project.org/package=lmForc)
 [![Total Downloads](http://cranlogs.r-pkg.org/badges/grand-total/lmForc?color=blue)](https://cran.r-project.org/package=lmForc)
-[![R build status](https://github.com/lucius-verus-fan/lmForc/workflows/R-CMD-check/badge.svg)](https://github.com/lucius-verus-fan/lmForc/actions)
+[![R build status](https://github.com/nelson-n/lmForc/workflows/R-CMD-check/badge.svg)](https://github.com/nelson-n/lmForc/actions)
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-success.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 <!-- badges: end -->
   
@@ -40,11 +40,11 @@ To install the **stable** version from [CRAN](https://cran.r-project.org/package
 install.packages("lmForc")
 ```
 
-To install the **development** version from [GitHub](https://github.com/lucius-verus-fan/lmForc):
+To install the **development** version from [GitHub](https://github.com/nelson-n/lmForc):
   
 ```{r github-installation, eval = FALSE}
 # install.packages("remotes")
-remotes::install_github("lucius-verus-fan/lmForc")
+remotes::install_github("nelson-n/lmForc")
 ```
 
 ## Examples

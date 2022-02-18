@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# lmForc <a href='https://github.com/lucius-verus-fan/lmForc/blob/main/vignettes/logo/lmForc_hexSticker.png'><img src='/vignettes/logo/lmForc_hexSticker.png' align="right" height="200" /></a>
+# lmForc <a href='https://github.com/nelson-n/lmForc/blob/main/vignettes/logo/lmForc_hexSticker.png'><img src='/vignettes/logo/lmForc_hexSticker.png' align="right" height="200" /></a>
 
 <!-- badges: start -->
 
@@ -9,7 +9,7 @@
 [![Total
 Downloads](http://cranlogs.r-pkg.org/badges/grand-total/lmForc?color=blue)](https://cran.r-project.org/package=lmForc)
 [![R build
-status](https://github.com/lucius-verus-fan/lmForc/workflows/R-CMD-check/badge.svg)](https://github.com/lucius-verus-fan/lmForc/actions)
+status](https://github.com/nelson-n/lmForc/workflows/R-CMD-check/badge.svg)](https://github.com/nelson-n/lmForc/actions)
 [![Lifecycle:
 stable](https://img.shields.io/badge/lifecycle-stable-success.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 <!-- badges: end -->
@@ -43,11 +43,11 @@ install.packages("lmForc")
 ```
 
 To install the **development** version from
-[GitHub](https://github.com/lucius-verus-fan/lmForc):
+[GitHub](https://github.com/nelson-n/lmForc):
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("lucius-verus-fan/lmForc")
+remotes::install_github("nelson-n/lmForc")
 ```
 
 ## Examples

@@ -41,3 +41,8 @@
 * Added `states_weighted_forc()` function for computing state weighted forecasts.
 
 * Changed name of `mse_weighted_forc()` to `performance_weighted_forc()` to reflect that errors may be either MSE or RMSE.
+
+# lmForc 0.1.1
+
+* Added `mae()` and `mape()` as options for the `errors` argument in `states_weighted_forc()` and `performance_weighted_forc()`.
+

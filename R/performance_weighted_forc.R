@@ -17,9 +17,8 @@
 #' @param eval_window Integer representing the window over which forecast
 #'   accuracy is evaluated. Forecasts are weighted based on their accuracy over
 #'   the past \code{eval_window} number of periods.
-#' @param errors Character, either "mse" or "rmse". Selects whether forecast
-#'   accuracy is evaluated using mean squared errors or root mean squared
-#'   errors.
+#' @param errors Character, either "mse", "rmse", "mae", or "mape". Selects what
+#'   forecast accuracy function is used to evaluate forecast errors.
 #' @param return_weights Boolean, selects whether the weights used to weight
 #'   forecasts in each period are returned. If TRUE, a data frame of weights is 
 #'   returned to the Global Environment.
@@ -94,8 +93,8 @@ performance_weighted_forc <- function(..., eval_window, errors = "mse", return_w
     stop("* eval_window must be of length one: eval_window = 4L")
   }
 
-  if (!(errors %in% c("mse", "rmse"))) {
-    stop('* errors must be either "mse" or "rmse": errors = "mse"')
+  if (!(errors %in% c("mse", "rmse", "mae", "mape"))) {
+    stop('* errors must be either "mse", "rmse", "mae", or "mape": errors = "mse"')
   }
 
   if (length(unique(lapply(forecasts, function(x) class(x@origin)))) > 1) {

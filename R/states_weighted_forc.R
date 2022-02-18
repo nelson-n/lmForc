@@ -31,9 +31,8 @@
 #'   weighted based on their accuracy over \code{matching_window} periods.
 #' @param matching Character, "euclidean", "mse", or "rmse". Selects the function
 #'   used to match the current state of the world to a past state.
-#' @param errors Character, either "mse" or "rmse". Selects whether forecast
-#'   accuracy is evaluated using mean squared errors or root mean squared
-#'   errors.
+#' @param errors Character, either "mse", "rmse", "mae", or "mape". Selects what
+#'   forecast accuracy function is used to evaluate forecast errors.
 #' @param return_weights Boolean, selects whether the weights used to weight
 #'   forecasts in each period are returned. If TRUE, a data frame of weights and 
 #'   matched periods is returned to the Global Environment.
@@ -168,8 +167,8 @@ states_weighted_forc <- function(..., matching_vars, time_vec = NULL, matching_w
     stop("* matching_window must be of length one: matching_window = 4L")
   }
 
-  if (!(errors %in% c("mse", "rmse"))) {
-    stop('* errors must be either "mse" or "rmse": errors = "mse"')
+  if (!(errors %in% c("mse", "rmse", "mae", "mape"))) {
+    stop('* errors must be either "mse", "rmse", "mae", or "mape": errors = "mse"')
   }
   
   if (!(matching %in% c("euclidean", "mse", "rmse"))) {
