@@ -46,3 +46,5 @@
 
 * Added `mae()` and `mape()` as options for the `errors` argument in `states_weighted_forc()` and `performance_weighted_forc()`.
 
+* Altered `forc2df()` so that if only one Forecast object is converted to a data.frame the forecast column is named "forecast".
+
