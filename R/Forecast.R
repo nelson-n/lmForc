@@ -1047,7 +1047,7 @@ forc2df <- function(...) {
   forecast_vecs <- lapply(forecasts, function(x) x@forecast)
   forecasts <- data.frame(do.call(cbind, forecast_vecs))
   
-  if (length(forecast_names)) == 1 {
+  if (length(forecast_names) == 1) {
     colnames(forecasts) <- "forecast"
   } else {
     colnames(forecasts) <- forecast_names
