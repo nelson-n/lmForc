@@ -35,6 +35,8 @@ For an overview of the *lmForc* package, please read the vignette: [lmForc Vigne
 ## Paper
 Pre-print version of [lmForc: Linear Model Forecasting in R](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4130453), submitted to the [R Journal](https://journal.r-project.org/).
 
+**Abstract**: Linear forecasting models are a popular option in many domains due to their simplicity and interpretability. This paper considers the tools a forecaster has for evaluating linear forecasting models and presents lmForc, a package which implements these evaluation functions. Functions in the lmForc package are built around a new S4 class, Forecast, which introduces a dedicated data structure for storing forecasts to the R language and permits the creation of complex forecasting functions. The lmForc package is designed to leverage the simplicity and interpretability of linear models so that a forecaster may easily test model specifications and understand precisely how a model arrives at a forecast.
+
 ## Installation
 
 To install the **stable** version from [CRAN](https://cran.r-project.org/package=lmForc):
