@@ -30,9 +30,8 @@ weighted based on their accuracy over \code{matching_window} periods.}
 \item{matching}{Character, "euclidean", "mse", or "rmse". Selects the function
 used to match the current state of the world to a past state.}
 
-\item{errors}{Character, either "mse" or "rmse". Selects whether forecast
-accuracy is evaluated using mean squared errors or root mean squared
-errors.}
+\item{errors}{Character, either "mse", "rmse", "mae", or "mape". Selects what
+forecast accuracy function is used to evaluate forecast errors.}
 
 \item{return_weights}{Boolean, selects whether the weights used to weight
 forecasts in each period are returned. If TRUE, a data frame of weights and
