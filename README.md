@@ -25,6 +25,10 @@ or states weighted forecast combinations. These functions are built
 around the Forecast class which matches the simplicity and
 interpretability of linear models.
 
+Pre-print version of [lmForc: Linear Model Forecasting in
+R](https://cran.r-project.org/web/packages/lmForc/vignettes/lmForc.html),
+submitted to the [R Journal](https://journal.r-project.org/).
+
 ## Vignette
 
 For an overview of the *lmForc* package, please read the vignette:
