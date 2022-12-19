@@ -8,8 +8,7 @@
 Assorted functions for working with lmForc Forecast objects. These
 functions can be accessed by cloning the scripts *lmForc_subset.R*,
 *lmForc_transform.R*, and *lmForc_visualize.R* from this repository and
-running `source("lmForc_subset.R")`, `source("lmForc_transform.R")`, and
-`source("lmForc_visualize.R")` in R.
+sourcing them in R.
 
 ``` r
 library(lmForc)
