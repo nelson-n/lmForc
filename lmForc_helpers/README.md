@@ -3,15 +3,21 @@
 
 # lmForc Helper Functions
 
-``` r
-library(lmForc)
-```
-
 <img src="imgs/lmForc_helpers.png" style="width:100.0%" />
 
-Assorted functions for working with lmForc Forecast objects. The end
-game is to integrate some of these functions into the lmForc package and
-turn the rest of these functions into a standalone R package.
+Assorted functions for working with lmForc Forecast objects. These
+functions can be accessed by cloning the scripts *lmForc_subset.R*,
+*lmForc_transform.R*, and *lmForc_visualize.R* from this repository and
+running `source("lmForc_subset.R")`, `source("lmForc_transform.R")`, and
+`source("lmForc_visualize.R")` in R.
+
+``` r
+library(lmForc)
+
+source("lmForc_subset.R")
+source("lmForc_transform.R")
+source("lmForc_visualize.R")
+```
 
 ## Sections
 
@@ -225,6 +231,7 @@ these forecasts into a list of Forecast objects that is in **Time
 Format** and assign it to `forcs_time_format`.
 
 ``` r
+
 forc1_t1 <- Forecast(
   origin = as.Date(c("2010-02-17", "2010-02-17", "2010-02-17")),
   future = as.Date(c("2010-06-30", "2010-09-30", "2010-12-31")),
@@ -279,6 +286,7 @@ collected into a list of Forecast objects that is in **h_ahead Format**
 and assigned to `forcs_h_ahead_format`.
 
 ``` r
+
 forc1_1h <- Forecast(
   origin = as.Date(c("2010-02-17", "2010-05-14", "2010-07-22", "2010-12-22")),
   future = as.Date(c("2010-06-30", "2010-09-30", "2010-12-31", "2011-03-31")),
@@ -317,6 +325,7 @@ Format**. Note that because we are converting to **Time Format**, the
 `h_ahead` value in each Forecast object is changed to `NA`.
 
 ``` r
+
 convert_bytime(
   forcs_h_ahead_format,
   value = as.Date(c("2010-07-22", "2010-12-22")),
@@ -352,6 +361,7 @@ forecasts in the list while converting only converts the forecasts
 specified by the user.
 
 ``` r
+
 transform_bytime(forcs_h_ahead_format, slot = "origin")
 #> [[1]]
 #> h_ahead = NA 
@@ -439,6 +449,7 @@ automatically converts all forecasts in the list while converting only
 converts the forecasts specified by the user.
 
 ``` r
+
 transform_byh(forcs_time_format, h_aheads = c(1, 2, 3))
 #> [[1]]
 #> h_ahead = 1 
@@ -520,6 +531,7 @@ be used to calculate forecast accuracy across multiple forecast models
 and `h_ahead` forecast horizons.
 
 ``` r
+
 forc2_1h <- Forecast(
   origin = as.Date(c("2010-02-17", "2010-05-14", "2010-07-22", "2010-12-22")),
   future = as.Date(c("2010-06-30", "2010-09-30", "2010-12-31", "2011-03-31")),
@@ -553,10 +565,6 @@ accuracy_table(
   colnames = c("forc1", "forc2"),
   rownames = c("1h", "2h", "3h")
 )
-#>        forc1     forc2
-#> 1h 0.6352559 1.3180857
-#> 2h 0.4355456 0.8878063
-#> 3h 0.6235784 0.8587636
 ```
 
 ## plot_forc
@@ -572,6 +580,7 @@ necessary. `plot_forc()` also supports the alteration of various plot
 aesthetics via arguments such as `labels` and `colors`.
 
 ``` r
+
 library(ggplot2)
 
 plot_forc(
@@ -582,22 +591,6 @@ plot_forc(
   ylab = "Forecasted Value",
   title = "1h Ahead Forecast Comparison"
 )
-#> ggplot(data = df, aes(x = future)) + 
-#>     geom_line(aes(y = realized, colour = 'Realized Values'), lwd = 0.6) + 
-#>     geom_line(aes(y = forc1, colour = 'forc1 1h forecast'), lwd = 0.6) + 
-#>     geom_line(aes(y = forc2, colour = 'forc2 1h forecast'), lwd = 0.6) + 
-#>  scale_color_manual(
-#>     breaks = c('Realized Values', 'forc1 1h forecast', 'forc2 1h forecast'), 
-#>     values = c('black', 'blue', 'red')
-#>   ) + 
-#>   labs(title = '1h Ahead Forecast Comparison', 
-#>     x = 'Realized Date', 
-#>     y = 'Forecasted Value', 
-#>     caption = '',
-#>     colour = NULL
-#>   ) + 
-#>   theme_light() + 
-#>   theme(legend.position = c('0.1', '0.9'))
 ```
 
 <img src="imgs/plot_forc_ex.png" style="width:100.0%" />

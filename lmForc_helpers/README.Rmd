@@ -18,6 +18,8 @@ knitr::opts_chunk$set(
 
 ![](imgs/lmForc_helpers.png){width=100%}
 
+Assorted functions for working with lmForc Forecast objects. These functions can be accessed by cloning the scripts *lmForc_subset.R*, *lmForc_transform.R*, and *lmForc_visualize.R* from this repository and running `source("lmForc_subset.R")`, `source("lmForc_transform.R")`, and `source("lmForc_visualize.R")` in R.
+
 ```{r example100, message=FALSE, eval=FALSE}
 library(lmForc)
 
@@ -25,8 +27,6 @@ source("lmForc_subset.R")
 source("lmForc_transform.R")
 source("lmForc_visualize.R")
 ```
-
-Assorted functions for working with lmForc Forecast objects. These functions can be accessed by cloning the scripts *lmForc_subset.R*, *lmForc_transform.R*, and *lmForc_visualize.R* from this repository and running `source("lmForc_subset.R")`, `source("lmForc_transform.R")`, and `source("lmForc_visualize.R")` in R.
 
 ## Sections
 #### [Subsetting Functions Overview]
@@ -308,7 +308,7 @@ and <br/>
 
 ## Visualization Functions Overview
 
-```{r example114, message=FALSE}
+```{r example114, message=FALSE, eval=FALSE}
 source("lmForc_visualize.R")
 ```
 
@@ -339,7 +339,7 @@ Another forecast model `forc2` that consists of an **h_ahead Format** forecast l
 is added below to demonstrate how `accuracy_table()` can be used to calculate forecast 
 accuracy across multiple forecast models and `h_ahead` forecast horizons.
 
-```{r example115, message=FALSE}
+```{r example115, message=FALSE, eval=FALSE}
 
 forc2_1h <- Forecast(
   origin = as.Date(c("2010-02-17", "2010-05-14", "2010-07-22", "2010-12-22")),
@@ -388,7 +388,7 @@ the data.frame used to render the ggplot may be optionally returned with the
 afterwards if necessary. `plot_forc()` also supports the alteration of various
 plot aesthetics via arguments such as `labels` and `colors`.
 
-```{r example116, message=FALSE}
+```{r example116, message=FALSE, eval=FALSE}
 
 library(ggplot2)
 
