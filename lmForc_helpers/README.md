@@ -5,7 +5,7 @@
 
 <img src="imgs/lmForc_helpers.png" style="width:100.0%" />
 
-Assorted functions for working with lmForc Forecast objects. These
+Assorted functions for working with lmForc `Forecast` objects. These
 functions can be accessed by cloning the scripts *lmForc_subset.R*,
 *lmForc_transform.R*, and *lmForc_visualize.R* from this repository and
 sourcing them in R.
