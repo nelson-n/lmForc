@@ -72,13 +72,14 @@ remotes::install_github("nelson-n/lmForc")
 
 Additional helper functions for working with lmForc `Forecast` objects
 are available in the subdirectory
-[**/lmForc_helpers**](https://github.com/nelson-n/lmForc/tree/main/lmForc_helpers).
+[/lmForc_helpers](https://github.com/nelson-n/lmForc/tree/main/lmForc_helpers).
 These extension functions include `subset_identical()` which subsets a
 list of forecasts to an identical sample period and `transform_bytime()`
 which converts forecasts to *Time Format*. These functions can be
 accessed by cloning the scripts *lmForc_subset.R*, *lmForc_transform.R*,
-and *lmForc_visualize.R* from the **/lmForc_helpers** directory and
-sourcing them in R.
+and *lmForc_visualize.R* from the
+[/lmForc_helpers](https://github.com/nelson-n/lmForc/tree/main/lmForc_helpers)
+directory and sourcing them in R.
 
 ``` r
 source("lmForc_subset.R")
