@@ -12,6 +12,7 @@ Downloads](http://cranlogs.r-pkg.org/badges/grand-total/lmForc?color=blue)](http
 status](https://github.com/nelson-n/lmForc/workflows/R-CMD-check/badge.svg)](https://github.com/nelson-n/lmForc/actions)
 [![Lifecycle:
 stable](https://img.shields.io/badge/lifecycle-stable-success.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+[![R-CMD-check](https://github.com/nelson-n/lmForc/workflows/R-CMD-check/badge.svg)](https://github.com/nelson-n/lmForc/actions)
 <!-- badges: end -->
 
 <!-- [![Monthly Downloads](http://cranlogs.r-pkg.org/badges/lmForc?color=blue)](https://cran.r-project.org/package=lmForc) -->
@@ -35,9 +36,8 @@ Vignette](https://cran.r-project.org/web/packages/lmForc/vignettes/lmForc.html)
 
 ## Paper
 
-Pre-print version of [lmForc: Linear Model Forecasting in
-R](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4130453),
-submitted to the [R Journal](https://journal.r-project.org/).
+Accompanying Paper: [lmForc: Linear Model Forecasting in
+R](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4130453)
 
 **Abstract**: Linear forecasting models are a popular option in many
 domains due to their simplicity and interpretability. This paper
@@ -98,6 +98,7 @@ perfect information.
 
 ``` r
 library(lmForc)
+#> Warning: package 'lmForc' was built under R version 4.0.5
 
 # Stylized dataset.
 date <- as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31",
