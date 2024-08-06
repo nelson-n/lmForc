@@ -1,6 +1,7 @@
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# lmForc <a href='https://github.com/nelson-n/lmForc/blob/main/vignettes/logo/lmForc_hexSticker.png'><img src='/vignettes/logo/lmForc_hexSticker.png' align="right" height="200" /></a>
+# lmForc <a href='https://github.com/nelson-n/lmForc/blob/main/vignettes/logo/lmForc_hexSticker.png'><img src='/Users/nelsonrayl/Desktop/init/lmForc/lmForc/vignettes/logo/lmForc_hexSticker.png' align="right" height="200" /></a>
 
 <!-- badges: start -->
 
@@ -16,14 +17,15 @@ stable](https://img.shields.io/badge/lifecycle-stable-success.svg)](https://life
 
 <!-- [![Monthly Downloads](http://cranlogs.r-pkg.org/badges/lmForc?color=blue)](https://cran.r-project.org/package=lmForc) -->
 
-The R package *lmForc* introduces functions for testing linear model
-forecasts and a new class for working with forecast data: Forecast. Test
-linear models out-of-sample by conditioning on realized values, vintage
+The R package *lmForc* introduces functions for testing forecasting
+models and a new class for working with forecast data: `Forecast`. Test
+models out-of-sample by conditioning on realized values, vintage
 forecasts, or lagged values. Benchmark against AR models, historical
 average forecasts, or random walk forecasts. Create performance weighted
 or states weighted forecast combinations. These functions are built
-around the Forecast class which matches the simplicity and
-interpretability of linear models.
+around the `Forecast` class and support both linear forecasting models
+and more complex models such as logistic regression, tree based models,
+or neural networks.
 
 ## Vignette
 
@@ -31,7 +33,7 @@ For an overview of the *lmForc* package, please read the vignette:
 [lmForc
 Vignette](https://cran.r-project.org/web/packages/lmForc/vignettes/lmForc.html)
 
-<a href='https://cran.r-project.org/web/packages/lmForc/vignettes/lmForc.html'><img src='/vignettes/vignette_demo.png' align="center" height="220" /></a>
+<a href='https://cran.r-project.org/web/packages/lmForc/vignettes/lmForc.html'><img src='/Users/nelsonrayl/Desktop/init/lmForc/lmForc/vignettes/vignette_demo.png' align="center" height="220" /></a>
 
 ## Paper
 
@@ -67,26 +69,7 @@ To install the **development** version from
 remotes::install_github("nelson-n/lmForc")
 ```
 
-## lmForc Helper Functions
-
-Additional helper functions for working with lmForc `Forecast` objects
-are available in the subdirectory
-[/lmForc_helpers](https://github.com/nelson-n/lmForc/tree/main/lmForc_helpers).
-These extension functions include `subset_identical()` which subsets a
-list of forecasts to an identical sample period and `transform_bytime()`
-which converts forecasts to *Time Format*. These functions can be
-accessed by cloning the scripts *lmForc_subset.R*, *lmForc_transform.R*,
-and *lmForc_visualize.R* from the
-[/lmForc_helpers](https://github.com/nelson-n/lmForc/tree/main/lmForc_helpers)
-directory and sourcing them in R.
-
-``` r
-source("lmForc_subset.R")
-source("lmForc_transform.R")
-source("lmForc_visualize.R"
-```
-
-## Examples
+## Linear Forecasting Model Example
 
 Produce an out-of-sample forecast conditioned on realized values.
 Calculates linear model coefficients in each period based on information
@@ -97,7 +80,6 @@ perfect information.
 
 ``` r
 library(lmForc)
-#> Warning: package 'lmForc' was built under R version 4.0.5
 
 # Stylized dataset.
 date <- as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31",
@@ -108,7 +90,7 @@ x1   <- c(4.22, 3.86, 4.27, 5.60, 5.11, 4.31, 4.92, 5.80, 6.30, 4.17)
 x2   <- c(10.03, 10.49, 10.85, 10.47, 9.09, 10.91, 8.68, 9.91, 7.87, 6.63)
 data <- data.frame(date, y, x1, x2)
 
-# Out-of-sample forecast.
+# Linear model out-of-sample forecast.
 forecast1 <- oos_realized_forc(
   lm_call = lm(y ~ x1 + x2, data),
   h_ahead = 2L,
@@ -182,4 +164,48 @@ performance_weighted_forc(
 #> 2 2011-06-30 2011-12-31       NA     2.11
 #> 3 2011-09-30 2012-03-31 2.502552     2.97
 #> 4 2011-12-31 2012-06-30 2.575770     0.99
+```
+
+## General Forecasting Model Example
+
+Produces an out-of-sample forecast conditioned on realized values
+similar to the example above, but does so using a logistic regression.
+Functions with `_general` in the name are designed to work with any
+model that can be estimated in R, including tree based models, neural
+networks, or models with hand-built parameters. The user only needs to
+specify a `model_function` that estimates the model and the
+`prediction_function` which produces predictions from the model.
+
+``` r
+# Stylized Dataset.
+date <- as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31",
+                  "2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31", 
+                  "2012-03-31", "2012-06-30", "2012-09-30", "2012-12-31",
+                  "2013-03-31", "2013-06-30", "2013-09-30", "2013-12-31"))
+y  <- c(1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0)
+x1 <- c(8.22, 3.86, 4.27, 3.37, 5.88, 3.34, 2.92, 1.80, 3.30, 7.17, 3.22, 3.86, 4.27, 3.37, 5.88, 3.34)
+x2 <- c(4.03, 2.46, 2.04, 2.44, 6.09, 2.91, 1.68, 2.91, 3.87, 1.63, 4.03, 2.46, 2.04, 2.44, 6.09, 2.91)
+dataLogit <- data.frame(date, y, x1, x2)
+
+# Logit model out-of-sample forecast.
+forecast3 <- oos_realized_forc_general(
+    model_function = function(data) {glm(y ~ x1 + x2, data = data, family = binomial)},
+    prediction_function = function(model_function, data) {as.vector(predict(model_function, data, type = "response"))}, 
+    data = dataLogit,
+    realized = dataLogit$y,
+    h_ahead = 2L,
+    estimation_end = as.Date("2012-06-30"),
+    time_vec = dataLogit$date,
+    estimation_window = NULL
+)
+
+forecast3
+#> h_ahead = 2 
+#> 
+#>       origin     future   forecast realized
+#> 1 2012-06-30 2012-12-31 0.20301888        0
+#> 2 2012-09-30 2013-03-31 0.24452583        0
+#> 3 2012-12-31 2013-06-30 0.07931267        1
+#> 4 2013-03-31 2013-09-30 0.98707714        1
+#> 5 2013-06-30 2013-12-31 0.18387762        0
 ```

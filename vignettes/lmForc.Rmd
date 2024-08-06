@@ -61,7 +61,7 @@ philosophy that compliments the features of linear models: One, the syntax for
 creating linear models is simple and the syntax for testing them should be 
 equally simple. Two, performance tests should be realistic and when possible
 replicate what it would have been like to forecast in real-time. This framework
-has also been extended in the `_general` set of functions to accomodate non-linear
+has also been extended in the `_general` set of functions to accommodate non-linear
 models such as logit models, decisions trees, or any custom model that a researcher
 would like to test.
 
@@ -218,7 +218,7 @@ head(data)
 ```
 
 To demonstrate the `_general` set of functions which extend standard *lmForc* functions
-to accomodate non-linear models, we will use a logit regression and a modified version
+to accommodate non-linear models, we will use a logit regression and a modified version
 of the above dataset in which the dependent variable `y` is binary.
 
 ```{r}
@@ -846,7 +846,7 @@ autoreg_forc(
 )
 ```
 
-`autoreg_forc()` returns an autoressive forecast based on information that would
+`autoreg_forc()` returns an autoregressive forecast based on information that would
 have been available at the forecast origin. This function replicates the forecasts
 than an AR model would have produced in real-time and can serve as a 
 benchmark for other forecasting models.
