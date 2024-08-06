@@ -23,17 +23,33 @@ library(lmForc)
 ![](lmForc_logo.png){width=100%}
 
 ## Sections
+
 #### [Forecast Class]
 #### [is_forc]
+#### [is_forc_general]
 #### [oos_realized_forc]
-#### [oos_lag_forc]
+#### [oos_realized_forc_general]
 #### [oos_vintage_forc]
+#### [oos_vintage_forc_general]
 #### [conditional_forc]
+#### [conditional_forc_general]
+#### [oos_lag_forc]
 #### [historical_average_forc]
 #### [random_walk_forc]
 #### [autoreg_forc]
 #### [performance_weighted_forc]
 #### [states_weighted_forc]
+
+#### [Subsetting Functions Overview]
+#### [subset_forcs]
+#### [subset_bytime]
+#### [subset_identical]
+
+#### [Transformation Functions Overview]
+#### [convert_bytime]
+#### [transform_bytime]
+#### [convert_byh]
+#### [transform_byh]
 
 ## lmForc Motivation
 
@@ -44,7 +60,10 @@ models to be tested in multiple ways, both in-sample and out-out-sample. The
 philosophy that compliments the features of linear models: One, the syntax for
 creating linear models is simple and the syntax for testing them should be 
 equally simple. Two, performance tests should be realistic and when possible
-replicate what it would have been like to forecast in real-time.
+replicate what it would have been like to forecast in real-time. This framework
+has also been extended in the `_general` set of functions to accomodate non-linear
+models such as logit models, decisions trees, or any custom model that a researcher
+would like to test.
 
 ## Forecast Class
 
@@ -198,6 +217,24 @@ data <- data.frame(date, y, x1, x2)
 head(data)
 ```
 
+To demonstrate the `_general` set of functions which extend standard *lmForc* functions
+to accomodate non-linear models, we will use a logit regression and a modified version
+of the above dataset in which the dependent variable `y` is binary.
+
+```{r}
+date <- as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31",
+                  "2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31", 
+                  "2012-03-31", "2012-06-30", "2012-09-30", "2012-12-31",
+                  "2013-03-31", "2013-06-30", "2013-09-30", "2013-12-31"))
+y  <- c(1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0)
+x1 <- c(8.22, 3.86, 4.27, 3.37, 5.88, 3.34, 2.92, 1.80, 3.30, 7.17, 3.22, 3.86, 4.27, 3.37, 5.88, 3.34)
+x2 <- c(4.03, 2.46, 2.04, 2.44, 6.09, 2.91, 1.68, 2.91, 3.87, 1.63, 4.03, 2.46, 2.04, 2.44, 6.09, 2.91)
+dataLogit <- data.frame(date, y, x1, x2)
+
+head(dataLogit)
+```
+
+
 ## is_forc
 
 The `is_forc()` function produces an in-sample forecast based on a linear model.
@@ -230,6 +267,44 @@ is_forc(
 Note that because we are creating an in-sample forecast, `h_ahead` is set to 0 
 and the `origin` time equals the `future` time. This test evaluates how well a
 linear forecast model fits the historical data.
+
+## is_forc_general
+
+The `is_forc_general()` function produces an in-sample forecast based on a model function
+and prediction function specified by the user. The `is_forc_general` function takes a model function, a 
+prediction function, input data for estimating the model, and an optional vector of time
+data associated with the model. The model is estimated once over the entire sample period
+using the input data and model function. Model parameters are then combined with the input
+data using the prediction function to generate in-sample forecasts. This is functionally similar
+to the `is_forc()` function, but allows for usage of non-linear models such as GLMs, logit
+regressions, decision trees, or any custom model.
+
+For all observations *i* in the sample, coefficients are estimated as:
+
+$$ 
+Y_i = \text{model_function}(X_i)
+\qquad \text{for all } i
+$$
+And forecasts are estimated as:
+
+$$ 
+forecast_i = \text{prediction_function}(\text{model_function}, X_i) \qquad
+$$
+
+```{r}
+is_forc_general(
+  model_function = function(data) {glm(y ~ x1 + x2, data = data, family = binomial)},
+  prediction_function = function(model_function, data) {as.vector(predict(model_function, data, type = "response"))}, 
+  data = dataLogit,
+  realized = dataLogit$y,
+  time_vec = dataLogit$date
+)
+```
+
+
+Note that because we are creating an in-sample forecast, `h_ahead` is set to 0 
+and the `origin` time equals the `future` time. This test evaluates how well the 
+model fits the historical data.
 
 ## oos_realized_forc
 
@@ -282,54 +357,54 @@ that conditions on realized values that **would not** have been available to the
 forecaster at the forecast origin. This test evaluates the performance of a 
 linear forecast model had it been conditioned on perfect information.
 
-## oos_lag_forc
+## oos_realized_forc_general
 
-The `oos_lag_forc()` function produces an *h* period ahead out-of-sample 
-forecast conditioned on present period values. The function takes a linear model
-call, an integer number of periods ahead to forecast, a period to end the
-initial coefficient estimation and begin forecasting, an optional vector of 
-time data associated with the linear model, and an optional integer number of
-past periods to estimate the linear model over. The linear model data is lagged by
-`h_ahead` periods and the linear model is re-estimated with data up to
-`estimation_end` minus the number of periods specified in the `estimation_window`
-argument to create a lagged linear model. If `estimation_window` is left `NULL` 
-then the linear model is estimated with all available lagged data up to 
-`estimation_end`. Coefficients are multiplied by present period realized values 
-of the covariates to create a forecast for `h_ahead` periods ahead. This process 
-is iteratively repeated for each period after `estimation_end` with coefficients 
-updating in each period as more information would have become available to the 
-forecaster. In each period, coefficients are updated based on all available 
-information if `estimation_window` is set to `NULL`, or a rolling window of past
-periods if `estimation_window` is set to an integer value.
+The `oos_realized_forc_general()` function produces an *h* period ahead out-of-sample
+forecast that is conditioned on realized values. The function takes a model function, 
+a prediction function, input data for estimating the model, realized values of the 
+dependent variable, an integer number of periods ahead to forecast, a period to end 
+the initial coefficient estimation and begin forecasting, a vector of time data associated 
+with the model, and an optional integer number of past periods to estimate the model over.
+The model is originally estimated using the input data and model function with data 
+up to \code{estimation_end} minus the the number of periods specified in \code{estimation_window}. 
+If \code{estimation_window} is left \code{NULL} then the model is estimated with all 
+available data up to \code{estimation_end}. Model parameters are then combined with realized
+values of the input data \code{h_ahead} periods ahead to generate an \code{h_ahead} period
+ahead forecast. This process is iteratively repeated for each period after \code{estimation_end}
+with model parameters updating in each period. 
 
 In the sample *i*, for each period *p* greater than or equal to
 `estimation_end`, coefficients are updated as:
 
 $$
-Y_i = \beta_0 + \beta_1 X1_{i-h} + \beta_2 X2_{i-h} + \epsilon_i 
+Y_i = \text{model_function}(X_i)
 \qquad \text{for all} \quad p-w \leq i \leq \text{p}
 $$
-Where *w* is the `estimation_window` and *h* is `h_ahead`. `h_ahead` forecasts are estimated as:
+Where *X* is the input data and *w* is the `estimation_window`. `h_ahead` *h* forecasts are estimated as:
 
 $$
-forecast_{p+h} = \beta_0 + \beta_1 X1_{p} + \beta_2 X2_{p} \qquad
+forecast_{p+h} = \text{prediction_function}(\text{model_function}, X_{p+h}) \qquad
 $$
 
 ```{r}
-oos_lag_forc(
-  lm_call = lm(y ~ x1 + x2, data),
-  h_ahead = 2L,
-  estimation_end = as.Date("2011-03-31"),
-  time_vec = data$date,
-  estimation_window = NULL,
-  return_betas = FALSE
+forc <- oos_realized_forc_general(
+    model_function = function(data) {glm(y ~ x1 + x2, data = data, family = binomial)},
+    prediction_function = function(model_function, data) {
+      as.vector(predict(model_function, data, type = "response"))
+    }, 
+    data = dataLogit,
+    realized = dataLogit$y,
+    h_ahead = 2L,
+    estimation_end = as.Date("2012-06-30"),
+    time_vec = dataLogit$date,
+    estimation_window = NULL
 )
 ```
 
-This test evaluates the performance of a lagged linear model had it been
-conditioned on present values that **would** have been available to the
-forecaster at the forecast origin. This is in contrast to conditioning on 
-realized values or a forecast of the covariates.
+Note that the `oos_realized_forc_general` function returns an out-of-sample forecast 
+that conditions on realized values that **would not** have been available to the 
+forecaster at the forecast origin. This test evaluates the performance of a 
+forecasting model had it been conditioned on perfect information.
 
 ## oos_vintage_forc
 
@@ -398,6 +473,84 @@ of covariates would have produced in real-time. Here we see the strength of the
 structure, we can calculate a forecast that is conditional on these objects 
 without fearing inconsistency across inputs.
 
+## oos_vintage_forc_general
+
+The `oos_vintage_forc_general()` function produces an out-of-sample forecast conditioned
+on *h* period ahead forecasts of the model parameters. The function takes
+a model function, prediction function, input data for estimating the model, realized values
+of the dependent variable, a vector of time data associated with the model, a forecast for
+each parameter in the model, and an optional integer number of past periods to estimate the
+model over. For each period in the vintage forecasts, model parameteres are estimated with
+data up to the current period minus the number of periods specified in \code{estimation_window}.
+If \code{estimation_window} is left \code{NULL} then the model is estimated with all available
+data up to the current period. Model parameters are then combined with vintage forecast values
+to generate a forecast. *Note* that \code{data} input to the \code{prediction_function} takes
+the form of a data.frame with a number of columns equal to the number of input vintage forecasts
+and the \code{prediction_function} needs to be able adapted to take this input format and generate
+a forecast based on it. Returns an out-of-sample forecast conditional on vintage forecasts that
+**would** have been available at the forecast origin. Replicates the forecasts that a conditional
+forecasting model would have produced in real time.
+
+In the sample *i*, for each period *p* in the vintage forecasts *VF1* and *VF2*,
+coefficients are updated as:
+
+$$
+Y_i = \text{model_function}(X_i)
+\qquad \text{for all} \quad p-w \leq i \leq \text{p}
+$$
+
+Where *X* is the input data and *w* is the `estimation_window`. `h_ahead` *h* forecasts are estimated as:
+
+$$
+forecast_{p+h} = \beta_0 + \beta_1 VF1_p + \beta_2 VF2_p \qquad
+forecast_{p+h} = \text{prediction_function}(\text{model_function}, [VF1_p, VF2_p]) \qquad
+$$
+
+We introduce stylized vintage forecasts of X1 and X2 to demonstrate the 
+`oos_vintage_forc()` function. Using four quarter ahead forecasts of the 
+covariates X1 and X2, we create an out-of-sample forecast based on the
+coefficients and covariate forecasts that the forecaster would have used in 
+each period.
+
+```{r}
+x1_forecast_vintageLogit <- Forecast(
+   origin   = as.Date(c("2012-09-30", "2012-12-31", "2013-03-31", "2013-06-30")),
+   future   = as.Date(c("2013-09-30", "2013-12-31", "2014-03-31", "2014-06-30")),
+   forecast = c(6.34, 4.17, 2.98, 1.84),
+   realized = c(5.88, 3.34, 2.92, 1.80),
+   h_ahead  = 4L
+)
+
+x2_forecast_vintageLogit <- Forecast(
+   origin   = as.Date(c("2012-09-30", "2012-12-31", "2013-03-31", "2013-06-30")),
+   future   = as.Date(c("2013-09-30", "2013-12-31", "2014-03-31", "2014-06-30")),
+   forecast = c(7.32, 3.22, 2.21, 2.65),
+   realized = c(6.09, 2.91, 1.68, 2.91),
+   h_ahead  = 4L
+)
+
+oos_vintage_forc_general(
+    model_function = function(data) {glm(y ~ x1 + x2, data = data, family = binomial)},
+    prediction_function = function(model_function, data) {
+        names(data) <- c("x1", "x2")
+        as.vector(predict(model_function, data, type = "response"))
+    }, 
+    data = dataLogit,
+    realized = dataLogit$y,
+    time_vec = dataLogit$date,
+    x1_forecast_vintageLogit, x2_forecast_vintageLogit,
+    estimation_window = NULL
+)
+```
+
+*Note* that in the example above the \code{prediction_function} is adapted to take a specific data.frame
+as input and generate a forecast based on it. The form of this specific data.frame is printed to 
+the console for reference. This test replicates the forecasts that a model conditional on forecasts 
+of the model parameters would have produced in real-time. Here we see the strength of the
+`Forecast` class. Because the vintage forecasts of X1 and X2 share the same data
+structure, we can calculate a forecast that is conditional on these objects 
+without fearing inconsistency across inputs.
+
 ## conditional_forc
 
 The `conditional_forc()` function produces a forecast conditioned on forecasts
@@ -456,6 +609,120 @@ This function is used to create a forecast for the present period or replicate
 a forecast made at a specific period in the past. Note that because we are 
 forecasting into the future, `realized` is `NULL`. Also, because we are 
 forecasting a horizon of dates, `h_ahead` is `NULL`.
+
+## conditional_forc_general
+
+The `conditional_forc_general()` function produces a forecast conditioned on forecasts
+of the model parameters. The function takes a model function, prediction function, input
+data for estimating the model, a vector of time data associated with the model, and forecasts
+for each parameter in the model. The model is estimated once over the entire sample period
+and the model parameters are combined with the forecasts of each parameter to generate a forecast.
+
+For all observations *i* in the sample, coefficients are estimated as:
+
+$$
+Y_i = \text{model_function}(X_i)
+\qquad \text{for all } i
+$$
+
+And for all periods *p* in the covariate forecasts *F1* and *F2*, forecasts are estimated as:
+
+$$ 
+forecast_{p+h} = \text{prediction_function}(\text{model_function}, [VF1_p, VF2_p]) \qquad
+$$
+
+The difference between `conditional_forc_general()` and `oos_vintage_forc_general()` is that in
+the `conditional_forc_general()` function coefficients are only estimated once over all 
+observations. Coefficients do not update based on what information would have been
+available to the forecaster at any given point in time. We introduce stylized 
+forecasts of X1 and X2 to demonstrate the `conditional_forc_general()` function. Because 
+in this example we are making a conditional forecast for the future instead of testing past forecasts, we can condition on a horizon of forecasts. This is in contrast 
+to the `oos_vintage_forc_general()` example where we test the performance of four quarter
+ahead vintage forecasts.
+
+```{r}
+# Parameter Forecasts.
+x1_forecastLogit <- Forecast(
+   origin   = as.Date(c("2013-12-31", "2013-12-31", "2013-12-31", "2013-12-31")),
+   future   = as.Date(c("2014-03-31", "2014-06-30", "2014-09-30", "2014-12-31")),
+   forecast = c(2.11, 6.11, 6.75, 4.30),
+   realized = NULL,
+   h_ahead  = NULL
+)
+
+x2_forecastLogit <- Forecast(
+   origin   = as.Date(c("2013-12-31", "2013-12-31", "2013-12-31", "2013-12-31")),
+   future   = as.Date(c("2014-03-31", "2014-06-30", "2014-09-30", "2014-12-31")),
+   forecast = c(1.98, 7.44, 7.86, 5.98),
+   realized = NULL,
+   h_ahead  = NULL
+)
+
+conditional_forc_general(
+    model_function = function(data) {glm(y ~ x1 + x2, data = data, family = binomial)},
+    prediction_function = function(model_function, data) {
+        names(data) <- c("x1", "x2")
+        as.vector(predict(model_function, data, type = "response"))
+    }, 
+    data = dataLogit,
+    time_vec = dataLogit$date,
+    x1_forecastLogit, x2_forecastLogit
+)
+```
+
+This function is used to create a forecast for the present period or replicate 
+a forecast made at a specific period in the past. Note that because we are 
+forecasting into the future, `realized` is `NULL`. Also, because we are 
+forecasting a horizon of dates, `h_ahead` is `NULL`.
+
+## oos_lag_forc
+
+The `oos_lag_forc()` function produces an *h* period ahead out-of-sample 
+forecast conditioned on present period values. The function takes a linear model
+call, an integer number of periods ahead to forecast, a period to end the
+initial coefficient estimation and begin forecasting, an optional vector of 
+time data associated with the linear model, and an optional integer number of
+past periods to estimate the linear model over. The linear model data is lagged by
+`h_ahead` periods and the linear model is re-estimated with data up to
+`estimation_end` minus the number of periods specified in the `estimation_window`
+argument to create a lagged linear model. If `estimation_window` is left `NULL` 
+then the linear model is estimated with all available lagged data up to 
+`estimation_end`. Coefficients are multiplied by present period realized values 
+of the covariates to create a forecast for `h_ahead` periods ahead. This process 
+is iteratively repeated for each period after `estimation_end` with coefficients 
+updating in each period as more information would have become available to the 
+forecaster. In each period, coefficients are updated based on all available 
+information if `estimation_window` is set to `NULL`, or a rolling window of past
+periods if `estimation_window` is set to an integer value.
+
+In the sample *i*, for each period *p* greater than or equal to
+`estimation_end`, coefficients are updated as:
+
+$$
+Y_i = \beta_0 + \beta_1 X1_{i-h} + \beta_2 X2_{i-h} + \epsilon_i 
+\qquad \text{for all} \quad p-w \leq i \leq \text{p}
+$$
+Where *w* is the `estimation_window` and *h* is `h_ahead`. `h_ahead` forecasts are estimated as:
+
+$$
+forecast_{p+h} = \beta_0 + \beta_1 X1_{p} + \beta_2 X2_{p} \qquad
+$$
+
+```{r}
+oos_lag_forc(
+  lm_call = lm(y ~ x1 + x2, data),
+  h_ahead = 2L,
+  estimation_end = as.Date("2011-03-31"),
+  time_vec = data$date,
+  estimation_window = NULL,
+  return_betas = FALSE
+)
+```
+
+This test evaluates the performance of a lagged linear model had it been
+conditioned on present values that **would** have been available to the
+forecaster at the forecast origin. This is in contrast to conditioning on 
+realized values or a forecast of the covariates.
 
 ## historical_average_forc
 
@@ -778,6 +1045,262 @@ states weighted forecast for the present period or to test how a states weighted
 forecast would have performed historically. The states weighted forecasts are
 based on information that **would** have been available to the forecaster
 at the forecast origin.
+
+## Subsetting Functions Overview
+
+The Forecast class comes with a built in method for subsetting a single Forecast object. This subsetting method takes numeric or logical values and follows subsetting conventions that are present throughout the R language.
+
+`forc[2:4]` <br/>
+`forc[origin(forc1_1h) >= as.Date("2010-12-31")]`
+
+However, one often ends up working with multiple Forecast objects. Examples
+include working with different model forecasts for the same forecast horizon, one model forecast for varying forecast horizons, or both. The lmForc convention for working with multiple Forecast objects is to put them into a list. The following functions provide a way to subset lists of Forecast objects by various conditions.
+
+#### Subsetting Example Dataset
+
+Examples of lmForc subsetting functions utilize the following stylized dataset. 
+This example dataset contains one-quarter ahead forecasts produced by two different
+models, `forc1` and `forc2`. Note that both forecasts have identical `future`,
+`realized`, and `h_ahead` values, but that the `origin` dates of the last two forecasts differ. This becomes relevant when both forecast models are subset
+to identical `origin` values.
+
+```{r example101, message=FALSE}
+forc1_1h <- Forecast(
+  origin = as.Date(c("2010-02-17", "2010-05-14", "2010-07-22", "2010-12-05", "2011-03-10")),
+  future = as.Date(c("2010-06-30", "2010-09-30", "2010-12-31", "2011-03-31", "2011-06-30")),
+  forecast = c(4.27, 3.36, 4.78, 5.45, 5.12),
+  realized = c(4.96, 4.17, 4.26, 4.99, 5.38),
+  h_ahead = 1
+)
+
+forc2_1h <- Forecast(
+  origin = as.Date(c("2010-02-17", "2010-05-14", "2010-07-22", "2010-12-22", "2011-03-27")),
+  future = as.Date(c("2010-06-30", "2010-09-30", "2010-12-31", "2011-03-31", "2011-06-30")),
+  forecast = c(4.01, 3.89, 3.31, 4.33, 4.61),
+  realized = c(4.96, 4.17, 4.26, 4.99, 5.38),
+  h_ahead = 1
+)
+```
+
+## subset_forcs
+
+The simplest way to subset multiple Forecast objects is via the `subset_forcs()` 
+function. This function takes a list of Forecast objects and a numeric or logical
+index. All forecasts in the list are subset by the numerical or logical values
+that are passed to the `index` argument. 
+
+For example, a list of Forecast objects can be subset by a condition:<br/> `subset_forcs(forcs, origin(forc1_1h) >= as.Date("2010-12-31"))`
+
+```{r example104, message=FALSE}
+forcs <- list(forc1_1h, forc2_1h)
+
+subset_forcs(forcs, 2:3)
+```
+
+## subset_bytime
+
+One may want to compare forecasts over a specific time horizon. The `subset_bytime()` function allows the user to subset multiple forecasts based on `origin` or `future` values. After using the `slot` argument to choose whether to subset by `origin` or `future` values, the user passes a single time object
+or vector of time objects to the `values` argument. All forecasts in the list of 
+Forecast objects are subset by `values`. 
+
+For example, to see all of the forecasts that were made on a specific date:<br/> `subset_bytime(forcs, values = as.Date("2010-05-14"), slot = "origin")`
+
+```{r example105, message=FALSE}
+forcs <- list(forc1_1h, forc2_1h)
+ 
+subset_bytime(
+  forcs, 
+  values = as.Date(c("2010-09-30", "2010-12-31", "2011-03-31")), 
+  slot = "future"
+)
+```
+ 
+## subset_identical
+
+When comparing multiple forecasts, it is imperative that forecast accuracy is
+compared across an identical time period. This can become complicated if the `origin` and `future` values of multiple forecasts do not always align. The `subset_identical()` function finds all overlapping `origin` or `future` values in a list of Forecast objects and subsets each of the forecasts to these overlapping values. This leaves the user with a list of Forecasts that have either identical `origin` values or identical `future` values depending on what the user passes to the `slot` argument.
+
+```{r example106, message=FALSE}
+forcs <- list(forc1_1h, forc2_1h)
+
+subset_identical(forcs, slot = "origin")
+```
+
+## Transformation Functions Overview
+
+Forecasts are often produced for multiple `h_ahead` horizons into the future. For 
+example, a model may produce a 1-quarter ahead, 2-quarter ahead, 3-quarter ahead,
+and 4-quarter ahead forecast during each quarter of the year. In this example, multiple Forecast objects are needed to capture the forecast made during each quarter. As per lmForc convention, one would work with these forecasts by putting them into a list. When working with list of forecasts for multiple `h_ahead` horizons into the future, there are two general formats in which the forecasts can be organized. These two formats are: **Time Format** and **h_ahead Format**.
+
+#### Time Format
+
+**Time Format** consists of a list of Forecast objects where each forecast has
+homogenous `origin` or `future` values. Each Forecast object in the list was made at the 
+same time or contains forecasts for the same future time. However, the `h_ahead` 
+forecast horizon differs within each Forecast object. **Time Format** is used to 
+represent forecasts made at a single `origin` time for multiple `h_ahead` horizons.
+
+The following is an example of forecasts in **Time Format**. Each Forecast object
+represents a set of 1-quarter, 2-quarter, and 3-quarter ahead forecasts
+made at a single `origin` time during each quarter of 2010. Note that because each Forecast object contains forecasts for multiple `h_ahead` horizons, `h_ahead` is set to `NA`. We place all of these forecasts into a list of Forecast objects that is
+in **Time Format** and assign it to `forcs_time_format`.
+
+```{r example108, message=FALSE}
+
+forc1_t1 <- Forecast(
+  origin = as.Date(c("2010-02-17", "2010-02-17", "2010-02-17")),
+  future = as.Date(c("2010-06-30", "2010-09-30", "2010-12-31")),
+  forecast = c(4.27, 3.77, 3.52),
+  realized = c(4.96, 4.17, 4.26),
+  h_ahead = NA
+)
+
+forc1_t2 <- Forecast(
+  origin = as.Date(c("2010-05-14", "2010-05-14", "2010-05-14")),
+  future = as.Date(c("2010-09-30", "2010-12-31", "2011-03-31")),
+  forecast = c(3.36, 3.82, 4.22),
+  realized = c(4.17, 4.26, 4.99),
+  h_ahead = NA
+)
+
+forc1_t3 <- Forecast(
+  origin = as.Date(c("2010-07-22", "2010-07-22", "2010-07-22")),
+  future = as.Date(c("2010-12-31", "2011-03-31", "2011-06-30")),
+  forecast = c(4.78, 4.53, 5.03),
+  realized = c(4.26, 4.99, 5.33),
+  h_ahead = NA
+)
+
+forc1_t4 <- Forecast(
+  origin = as.Date(c("2010-12-22", "2010-12-22", "2010-12-22")),
+  future = as.Date(c("2011-03-31", "2011-06-30", "2011-09-30")),
+  forecast = c(5.45, 4.89, 5.78),
+  realized = c(4.99, 5.33, 5.21),
+  h_ahead = NA
+)
+
+forcs_time_format <- list(forc1_t1, forc1_t2, forc1_t3, forc1_t4)
+
+```
+
+### h_ahead Format
+
+**h_ahead Format** consists of a list of Forecast objects where each forecast has
+homogenous `h_ahead` values but the `origin` and `future` values vary. The 
+**h_ahead Format** is useful for analyzing forecasts at a specific `h_ahead`
+horizon. For example, one may want to calculate the forecast accuracy of 
+4-quarter ahead forecasts only. In this case it is useful to have multiple forecasts
+arranged by homogenous `h_ahead` values.
+
+The following is an example of forecasts in **h_ahead Format**. Each Forecast object
+represents all of the 1-quarter, 2-quarter, and 3-quarter ahead forecasts made during different quarters of 2010. Note that because each Forecast object has a homogenous `h_ahead` horizon we can now set `h_ahead` to the appropriate value. These forecasts are collected into a list of Forecast objects that is in **h_ahead Format** and assigned to `forcs_h_ahead_format`.
+
+```{r example109, message=FALSE}
+
+forc1_1h <- Forecast(
+  origin = as.Date(c("2010-02-17", "2010-05-14", "2010-07-22", "2010-12-22")),
+  future = as.Date(c("2010-06-30", "2010-09-30", "2010-12-31", "2011-03-31")),
+  forecast = c(4.27, 3.36, 4.78, 5.45),
+  realized = c(4.96, 4.17, 4.26, 4.99),
+  h_ahead = 1
+)
+
+forc1_2h <- Forecast(
+  origin = as.Date(c("2010-02-17", "2010-05-14", "2010-07-22", "2010-12-22")),
+  future = as.Date(c("2010-09-30", "2010-12-31", "2011-03-31", "2011-06-30")),
+  forecast = c(3.77, 3.82, 4.53, 4.89),
+  realized = c(4.17, 4.26, 4.99, 5.33),
+  h_ahead = 2
+)
+
+forc1_3h <- Forecast(
+  origin = as.Date(c("2010-02-17", "2010-05-14", "2010-07-22", "2010-12-22")),
+  future = as.Date(c("2010-12-31", "2011-03-31", "2011-06-30", "2011-09-30")),
+  forecast = c(3.52, 4.22, 5.03, 5.78),
+  realized = c(4.26, 4.99, 5.33, 5.21),
+  h_ahead = 3
+)
+
+forcs_h_ahead_format <- list(forc1_1h, forc1_2h, forc1_3h)
+
+```
+
+## convert_bytime
+
+Given a list of forecasts in **h_ahead Format**, one may want to convert one or
+multiple of these forecasts into **Time Format**. The function `convert_bytime()` 
+takes a list of Forecast objects in **h_ahead Format** and converts the forecasts
+made on the time specified in the `value` and `slot` arguments into Forecast objects
+that are in **Time Format**. Note that because we are converting to **Time Format**, the `h_ahead` value in each Forecast object is changed to `NA`.
+
+```{r example110, message=FALSE}
+
+convert_bytime(
+  forcs_h_ahead_format,
+  value = as.Date(c("2010-07-22", "2010-12-22")),
+  slot = "origin"
+)
+
+
+```
+
+## transform_bytime
+
+Given a list of forecasts in **h_ahead Format** one can convert all of the forecasts
+to **Time Format** using the `transform_bytime()` function. This function transforms
+all Forecast objects in `forcs` to a list of **Time Format** Forecast objects that
+have homogenous `origin` or `future` values depending on what the user specifies
+in the `slot` argument. The difference between `transform_bytime()` and 
+`convert_bytime()` is that transforming automatically converts all forecasts
+in the list while converting only converts the forecasts specified by the user.
+
+```{r example111, message=FALSE}
+
+transform_bytime(forcs_h_ahead_format, slot = "origin")
+
+```
+
+Note that the output of `transform_bytime()` above is identical to the list of 
+Forecast objects in `forcs_time_format`. One can continually transform 
+between **Time Format** and **h_ahead Format** without losing information. This is evidenced by the fact that: <br/> 
+`transform_bytime(forcs_h_ahead_format, slot = "origin") == forcs_time_format` <br/>
+and <br/> 
+`transform_byh(forcs_time_format, h_aheads = c(1, 2, 3)) == forcs_h_ahead_format`
+
+## convert_byh
+
+The inverse of `convert_bytime()` is `convert_byh()`. Given a list of forecasts 
+in **Time Format** `convert_byh()` converts one or multiple of these forecasts into **h_ahead Format**. The functions takes a list of Forecast objects in **Time Format** 
+and converts the forecasts specified by the `index` argument into Forecast objects
+in **h_ahead Format**. Because forecasts that are in **Time Format** do not have 
+`h_ahead` values, the function allows the user to assign `h_ahead` values to the
+converted Forecast objects via the `h_aheads` argument.
+
+```{r example112, message=FALSE}
+convert_byh(forcs_time_format, index = 1:2, h_aheads = c(1, 2))
+```
+
+## transform_byh
+
+Given a list of forecasts in **Time Format** one can convert all of the forecasts
+to **h_ahead Format** using the `transform_byh()` function. This function transforms
+all Forecast objects in `forcs` to a list of **h_ahead Format** Forecast objects that
+have homogenous `h_ahead` values. `h_ahead` values are assigned to each converted 
+Forecast object based on the values passed to the `h_aheads` argument.
+The difference between `transform_byh()` and `convert_byh()` is that transforming automatically converts all forecasts in the list while converting only converts the forecasts specified by the user.
+
+```{r example113, message=FALSE}
+
+transform_byh(forcs_time_format, h_aheads = c(1, 2, 3))
+
+```
+
+Note that the output of `transform_byh()` above is identical to the list of 
+Forecast objects in `forcs_h_ahead_format`. One can continually transform 
+between **Time Format** and **h_ahead Format** without losing information. This is evidenced by the fact that: <br/>
+`transform_byh(forcs_time_format, h_aheads = c(1, 2, 3)) == forcs_h_ahead_format` <br/>
+and <br/>
+`transform_bytime(forcs_h_ahead_format, slot = "origin") == forcs_time_format`
 
 </br>
 </br>

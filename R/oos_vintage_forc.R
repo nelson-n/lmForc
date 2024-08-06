@@ -161,7 +161,7 @@ oos_vintage_forc <- function(lm_call, time_vec, ..., estimation_window = NULL, r
     } else {
       train_data <- lm_call$model[time_vec <= origin_vec[i], ]
       if ((nrow(train_data) - estimation_window) >= 1) {
-        train_data <- train_data[((nrow(train_data) - estimation_window):nrow(train_data)), ]
+        train_data <- train_data[((nrow(train_data) - estimation_window + 1):nrow(train_data)), ]
       }
     }
     

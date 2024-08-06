@@ -1,18 +1,17 @@
 Package: lmForc
 Title: Linear Model Forecasting
-Version: 0.1.0
+Version: 1.0.0
 Authors@R: 
     person(given = "Nelson",
            family = "Rayl",
            role = c("aut", "cre"),
            email = "nelsonrayl14@gmail.com")
 Description: Introduces in-sample, out-of-sample, pseudo out-of-sample, and
-    benchmark linear model forecast tests and a new class for working with 
-    forecast data: Forecast.
+    benchmark model forecast tests and a new class for working with forecast data, Forecast.
 License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.3.2
 Depends:
     R (>= 3.6.0)
 Imports: 

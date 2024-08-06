@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
   
 <!-- [![Monthly Downloads](http://cranlogs.r-pkg.org/badges/lmForc?color=blue)](https://cran.r-project.org/package=lmForc) -->
   
-The R package *lmForc* introduces functions for testing linear model forecasts and a new class for working with forecast data: Forecast. Test linear models out-of-sample by conditioning on realized values, vintage forecasts, or lagged values. Benchmark against AR models, historical average forecasts, or random walk forecasts. Create performance weighted or states weighted forecast combinations. These functions are built around the Forecast class which matches the simplicity and interpretability of linear models.
+The R package *lmForc* introduces functions for testing forecasting models and a new class for working with forecast data: `Forecast`. Test models out-of-sample by conditioning on realized values, vintage forecasts, or lagged values. Benchmark against AR models, historical average forecasts, or random walk forecasts. Create performance weighted or states weighted forecast combinations. These functions are built around the `Forecast` class and support both linear forecasting models and more complex models such as logistic regression, tree based models, or neural networks.
 
 ## Vignette
 
@@ -63,7 +63,7 @@ source("lmForc_transform.R")
 source("lmForc_visualize.R"
 ```
 
-## Examples
+## Linear Forecasting Model Example
 
 Produce an out-of-sample forecast conditioned on realized values. Calculates linear model coefficients in each 
 period based on information that would have been available to the forecaster. Coefficients are combined with
@@ -82,7 +82,7 @@ x1   <- c(4.22, 3.86, 4.27, 5.60, 5.11, 4.31, 4.92, 5.80, 6.30, 4.17)
 x2   <- c(10.03, 10.49, 10.85, 10.47, 9.09, 10.91, 8.68, 9.91, 7.87, 6.63)
 data <- data.frame(date, y, x1, x2)
 
-# Out-of-sample forecast.
+# Linear model out-of-sample forecast.
 forecast1 <- oos_realized_forc(
   lm_call = lm(y ~ x1 + x2, data),
   h_ahead = 2L,
@@ -97,7 +97,6 @@ Produce an out-of-sample forecast based on the historical median. In each period
 the historical median of the series is calculated based on information that would
 have been available to the forecaster. Replicates the historical median forecast 
 that would have been produced in real-time and serves as a benchmark for other models.
-
 
 ```{r example2, message=FALSE}
 # Historical Median Forecast
@@ -129,3 +128,34 @@ performance_weighted_forc(
   return_weights = FALSE
 )
 ```
+
+## General Forecasting Model Example
+
+Produces an out-of-sample forecast conditioned on realized values similar to the example above, but does so using a logistic regression. Functions with `_general` in the name are designed to work with any model that can be estimated in R, including tree based models, neural networks, or models with hand-built parameters. The user only needs to specify a `model_function` that estimates the model and the `prediction_function` which produces predictions from the model.
+
+```{r example5, message=FALSE}
+# Stylized Dataset.
+date <- as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31",
+                  "2011-03-31", "2011-06-30", "2011-09-30", "2011-12-31", 
+                  "2012-03-31", "2012-06-30", "2012-09-30", "2012-12-31",
+                  "2013-03-31", "2013-06-30", "2013-09-30", "2013-12-31"))
+y  <- c(1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0)
+x1 <- c(8.22, 3.86, 4.27, 3.37, 5.88, 3.34, 2.92, 1.80, 3.30, 7.17, 3.22, 3.86, 4.27, 3.37, 5.88, 3.34)
+x2 <- c(4.03, 2.46, 2.04, 2.44, 6.09, 2.91, 1.68, 2.91, 3.87, 1.63, 4.03, 2.46, 2.04, 2.44, 6.09, 2.91)
+dataLogit <- data.frame(date, y, x1, x2)
+
+# Logit model out-of-sample forecast.
+forecast3 <- oos_realized_forc_general(
+    model_function = function(data) {glm(y ~ x1 + x2, data = data, family = binomial)},
+    prediction_function = function(model_function, data) {as.vector(predict(model_function, data, type = "response"))}, 
+    data = dataLogit,
+    realized = dataLogit$y,
+    h_ahead = 2L,
+    estimation_end = as.Date("2012-06-30"),
+    time_vec = dataLogit$date,
+    estimation_window = NULL
+)
+
+forecast3
+```
+

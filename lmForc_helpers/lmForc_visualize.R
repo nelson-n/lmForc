@@ -206,5 +206,5 @@ plot_forc <- function(forcs, labels, colors, xlab, ylab, title = "", caption = "
     return(df)
   } else {
     return(eval(parse(text = call)))
+  }
 }
-
