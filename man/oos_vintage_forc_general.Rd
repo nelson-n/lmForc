@@ -46,7 +46,7 @@ forecast.
 input data for estimating the model, realized values of the dependent variable,
 a vector of time data associated with the model, a forecast for each parameter
 in the model, and an optional integer number of past periods to estimate the
-model over. For each period in the vintage forecasts, model parameteres are
+model over. For each period in the vintage forecasts, model parametes are
 estimated with data up to the current period minus the number of periods
 specified in \code{estimation_window}. If \code{estimation_window} is left
 \code{NULL} then the model is estimated with all available data up to the

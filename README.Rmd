@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
   
 <!-- [![Monthly Downloads](https://cranlogs.r-pkg.org/badges/lmForc)](https://www.r-pkg.org/pkg/lmforc) -->
   
-The R package *lmForc* introduces functions for testing forecasting models and a new class for working with forecast data: `Forecast`. Test models out-of-sample by conditioning on realized values, vintage forecasts, or lagged values. Benchmark against AR models, historical average forecasts, or random walk forecasts. Create performance weighted or states weighted forecast combinations. These functions are built around the `Forecast` class and support both linear forecasting models and more complex models such as logistic regression, tree based models, or neural networks.
+The R package *lmForc* introduces functions for testing forecasting models and a new class for working with forecast data: `Forecast`. Test models out-of-sample by conditioning on realized values, vintage forecasts, or lagged values. Benchmark against AR models, historical average forecasts, or random walk forecasts. Create performance weighted or states weighted forecast combinations. These functions are built around the `Forecast` class and support both linear forecasting models and more complex models such as logistic regression, tree based models, and neural networks.
 
 ## Vignette
 
