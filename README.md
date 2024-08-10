@@ -1,12 +1,17 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# lmForc <a href='https://github.com/nelson-n/lmForc/blob/main/vignettes/logo/lmForc_hexSticker.png'><img src='vignettes/logo/lmForc_hexSticker.png' align="right" height="200" /></a>
+# lmForc <a href='https://github.com/nelson-n/lmForc/blob/main/vignettes/logo/lmForc_hexSticker.png'><img src='/Users/nelsonrayl/Desktop/init/lmForc/lmForc/vignettes/logo/lmForc_hexSticker.png' align="right" height="200" /></a>
 
 <!-- badges: start -->
-[![CRAN_Status_Badge](https://badges.cranchecks.info/worst/lmForc.svg)](https://cran.r-project.org/package=lmForc)
-[![Total Downloads](http://cranlogs.r-pkg.org/badges/grand-total/lmForc.svg)](https://cran.r-project.org/package=lmForc)
-[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-success.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/lmForc?color=brightgreen)](https://cran.r-project.org/package=lmForc)
+[![Total
+Downloads](http://cranlogs.r-pkg.org/badges/grand-total/lmForc?color=blue)](https://cran.r-project.org/package=lmForc)
+[![R build
+status](https://github.com/nelson-n/lmForc/workflows/R-CMD-check/badge.svg)](https://github.com/nelson-n/lmForc/actions)
+[![Lifecycle:
+stable](https://img.shields.io/badge/lifecycle-stable-success.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 [![R-CMD-check](https://github.com/nelson-n/lmForc/workflows/R-CMD-check/badge.svg)](https://github.com/nelson-n/lmForc/actions)
 <!-- badges: end -->
 
@@ -28,7 +33,7 @@ For an overview of the *lmForc* package, please read the vignette:
 [lmForc
 Vignette](https://cran.r-project.org/web/packages/lmForc/vignettes/lmForc.html)
 
-<a href='https://cran.r-project.org/web/packages/lmForc/vignettes/lmForc.html'><img src='/vignettes/vignette_demo.png' align="center" height="220" /></a>
+<a href='https://cran.r-project.org/web/packages/lmForc/vignettes/lmForc.html'><img src='/Users/nelsonrayl/Desktop/init/lmForc/lmForc/vignettes/vignette_demo.png' align="center" height="220" /></a>
 
 ## Paper
 
