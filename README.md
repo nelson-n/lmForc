@@ -4,10 +4,14 @@
 # lmForc <a href='https://github.com/nelson-n/lmForc/blob/main/vignettes/logo/lmForc_hexSticker.png'><img src='vignettes/logo/lmForc_hexSticker.png' align="right" height="200" /></a>
 
 <!-- badges: start -->
-[![CRAN Version](https://www.r-pkg.org/badges/version/lmForc)](https://www.r-pkg.org/pkg/lmForc)
-[![CRAN Posit Mirror Downloads](https://cranlogs.r-pkg.org/badges/grand-total/lmForc)](https://www.r-pkg.org/pkg/lmforc)
+
+[![CRAN
+Version](https://www.r-pkg.org/badges/version/lmForc)](https://www.r-pkg.org/pkg/lmForc)
+[![CRAN Posit Mirror
+Downloads](https://cranlogs.r-pkg.org/badges/grand-total/lmForc)](https://www.r-pkg.org/pkg/lmforc)
 [![R-CMD-check](https://github.com/nelson-n/lmForc/workflows/R-CMD-check/badge.svg)](https://github.com/nelson-n/lmForc/actions)
-[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-success.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+[![Lifecycle:
+stable](https://img.shields.io/badge/lifecycle-stable-success.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 <!-- badges: end -->
 
 <!-- [![Monthly Downloads](https://cranlogs.r-pkg.org/badges/lmForc)](https://www.r-pkg.org/pkg/lmforc) -->
@@ -20,13 +24,15 @@ average forecasts, or random walk forecasts. Create performance weighted
 or states weighted forecast combinations. These functions are built
 around the `Forecast` class and support both linear forecasting models
 and more complex models such as logistic regression, tree based models,
-or neural networks.
+and neural networks.
 
 ## Vignette
 
 For an overview of the *lmForc* package, please read the vignette:
 [lmForc
-Vignette](https://cran.r-project.org/web/packages/lmForc/vignettes/lmForc.html)
+Vignette](https://html-preview.github.io/?url=https://github.com/nelson-n/lmForc/blob/main/doc/lmForc.html)
+
+<!-- Optional: Link to vignette that is uploaded to CRAN: https://cran.r-project.org/web/packages/lmForc/vignettes/lmForc.html -->
 
 <a href='https://cran.r-project.org/web/packages/lmForc/vignettes/lmForc.html'><img src='vignettes/vignette_demo.png' align="center" height="220" /></a>
 
