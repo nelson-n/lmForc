@@ -16,14 +16,13 @@ knitr::opts_chunk$set(
 
 # lmForc <a href='https://github.com/nelson-n/lmForc/blob/main/vignettes/logo/lmForc_hexSticker.png'><img src='/Users/nelsonrayl/Desktop/init/lmForc/lmForc/vignettes/logo/lmForc_hexSticker.png' align="right" height="200" /></a>
 <!-- badges: start -->
-[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/lmForc?color=brightgreen)](https://cran.r-project.org/package=lmForc)
-[![Total Downloads](http://cranlogs.r-pkg.org/badges/grand-total/lmForc?color=blue)](https://cran.r-project.org/package=lmForc)
-[![R build status](https://github.com/nelson-n/lmForc/workflows/R-CMD-check/badge.svg)](https://github.com/nelson-n/lmForc/actions)
-[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-success.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+[![CRAN Version](https://www.r-pkg.org/badges/version/lmForc)](https://www.r-pkg.org/pkg/lmForc)
+[![CRAN Posit Mirror Downloads](https://cranlogs.r-pkg.org/badges/grand-total/lmForc)](https://www.r-pkg.org/pkg/lmforc)
 [![R-CMD-check](https://github.com/nelson-n/lmForc/workflows/R-CMD-check/badge.svg)](https://github.com/nelson-n/lmForc/actions)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-success.svg)](https://lifecycle.r-lib.org/articles/stages.html)
 <!-- badges: end -->
   
-<!-- [![Monthly Downloads](http://cranlogs.r-pkg.org/badges/lmForc?color=blue)](https://cran.r-project.org/package=lmForc) -->
+<!-- [![Monthly Downloads](https://cranlogs.r-pkg.org/badges/lmForc)](https://www.r-pkg.org/pkg/lmforc) -->
   
 The R package *lmForc* introduces functions for testing forecasting models and a new class for working with forecast data: `Forecast`. Test models out-of-sample by conditioning on realized values, vintage forecasts, or lagged values. Benchmark against AR models, historical average forecasts, or random walk forecasts. Create performance weighted or states weighted forecast combinations. These functions are built around the `Forecast` class and support both linear forecasting models and more complex models such as logistic regression, tree based models, or neural networks.
 
