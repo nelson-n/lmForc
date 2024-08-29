@@ -1038,6 +1038,9 @@ forecast would have performed historically. The states weighted forecasts are
 based on information that **would** have been available to the forecaster
 at the forecast origin.
 
+<br>
+<br>
+
 ## Subsetting Functions Overview
 
 The Forecast class comes with a built in method for subsetting a single Forecast object. This subsetting method takes numeric or logical values and follows subsetting conventions that are present throughout the R language.
@@ -1117,6 +1120,10 @@ forcs <- list(forc1_1h, forc2_1h)
 
 subset_identical(forcs, slot = "origin")
 ```
+
+
+<br>
+<br>
 
 ## Transformation Functions Overview
 
