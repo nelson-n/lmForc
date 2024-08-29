@@ -25,6 +25,9 @@ library(lmForc)
 ## Sections
 
 #### [Forecast Class]
+
+<br>
+
 #### [is_forc]
 #### [is_forc_general]
 #### [oos_realized_forc]
@@ -40,16 +43,22 @@ library(lmForc)
 #### [performance_weighted_forc]
 #### [states_weighted_forc]
 
+<br>
+
 #### [Subsetting Functions Overview]
 #### [subset_forcs]
 #### [subset_bytime]
 #### [subset_identical]
+
+<br>
 
 #### [Transformation Functions Overview]
 #### [convert_bytime]
 #### [transform_bytime]
 #### [convert_byh]
 #### [transform_byh]
+
+<br>
 
 ## Forecast Class
 
@@ -352,11 +361,11 @@ dependent variable, an integer number of periods ahead to forecast, a period to 
 the initial coefficient estimation and begin forecasting, a vector of time data associated 
 with the model, and an optional integer number of past periods to estimate the model over.
 The model is originally estimated using the input data and model function with data 
-up to \code{estimation_end} minus the the number of periods specified in \code{estimation_window}. 
-If \code{estimation_window} is left \code{NULL} then the model is estimated with all 
-available data up to \code{estimation_end}. Model parameters are then combined with realized
-values of the input data \code{h_ahead} periods ahead to generate an \code{h_ahead} period
-ahead forecast. This process is iteratively repeated for each period after \code{estimation_end}
+up to `estimation_end` minus the the number of periods specified in `estimation_window`. 
+If `estimation_window` is left `NULL` then the model is estimated with all 
+available data up to `estimation_end`. Model parameters are then combined with realized
+values of the input data `h_ahead` periods ahead to generate an `h_ahead` period
+ahead forecast. This process is iteratively repeated for each period after `estimation_end`
 with model parameters updating in each period. 
 
 In the sample *i*, for each period *p* greater than or equal to
@@ -467,12 +476,12 @@ a model function, prediction function, input data for estimating the model, real
 of the dependent variable, a vector of time data associated with the model, a forecast for
 each parameter in the model, and an optional integer number of past periods to estimate the
 model over. For each period in the vintage forecasts, model parameteres are estimated with
-data up to the current period minus the number of periods specified in \code{estimation_window}.
-If \code{estimation_window} is left \code{NULL} then the model is estimated with all available
+data up to the current period minus the number of periods specified in `estimation_window`.
+If `estimation_window` is left `NULL` then the model is estimated with all available
 data up to the current period. Model parameters are then combined with vintage forecast values
-to generate a forecast. *Note* that \code{data} input to the \code{prediction_function} takes
+to generate a forecast. *Note* that `data` input to the `prediction_function` takes
 the form of a data.frame with a number of columns equal to the number of input vintage forecasts
-and the \code{prediction_function} needs to be able adapted to take this input format and generate
+and the `prediction_function` needs to be able adapted to take this input format and generate
 a forecast based on it. Returns an out-of-sample forecast conditional on vintage forecasts that
 **would** have been available at the forecast origin. Replicates the forecasts that a conditional
 forecasting model would have produced in real time.

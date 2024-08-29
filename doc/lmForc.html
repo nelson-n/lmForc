@@ -156,6 +156,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2>Sections</h2>
 <div id="forecast-class" class="section level4">
 <h4><a href="#forecast-class-1">Forecast Class</a></h4>
+<p><br></p>
 </div>
 <div id="is_forc" class="section level4">
 <h4><a href="#is_forc-1">is_forc</a></h4>
@@ -198,6 +199,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="states_weighted_forc" class="section level4">
 <h4><a href="#states_weighted_forc-1">states_weighted_forc</a></h4>
+<p><br></p>
 </div>
 <div id="subsetting-functions-overview" class="section level4">
 <h4><a href="#subsetting-functions-overview-1">Subsetting Functions Overview</a></h4>
@@ -210,6 +212,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="subset_identical" class="section level4">
 <h4><a href="#subset_identical-1">subset_identical</a></h4>
+<p><br></p>
 </div>
 <div id="transformation-functions-overview" class="section level4">
 <h4><a href="#transformation-functions-overview-1">Transformation Functions Overview</a></h4>
@@ -225,6 +228,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="transform_byh" class="section level4">
 <h4><a href="#transform_byh-1">transform_byh</a></h4>
+<p><br></p>
 </div>
 </div>
 <div id="forecast-class-1" class="section level2">
@@ -430,7 +434,7 @@ forecast_{p+h} = \beta_0 + \beta_1 X1_{p+h} + \beta_2 X2_{p+h} \qquad
 </div>
 <div id="oos_realized_forc_general-1" class="section level2">
 <h2>oos_realized_forc_general</h2>
-<p>The <code>oos_realized_forc_general()</code> function produces an <em>h</em> period ahead out-of-sample forecast that is conditioned on realized values. The function takes a model function, a prediction function, input data for estimating the model, realized values of the dependent variable, an integer number of periods ahead to forecast, a period to end the initial coefficient estimation and begin forecasting, a vector of time data associated with the model, and an optional integer number of past periods to estimate the model over. The model is originally estimated using the input data and model function with data up to  minus the the number of periods specified in . If  is left  then the model is estimated with all available data up to . Model parameters are then combined with realized values of the input data  periods ahead to generate an  period ahead forecast. This process is iteratively repeated for each period after  with model parameters updating in each period.</p>
+<p>The <code>oos_realized_forc_general()</code> function produces an <em>h</em> period ahead out-of-sample forecast that is conditioned on realized values. The function takes a model function, a prediction function, input data for estimating the model, realized values of the dependent variable, an integer number of periods ahead to forecast, a period to end the initial coefficient estimation and begin forecasting, a vector of time data associated with the model, and an optional integer number of past periods to estimate the model over. The model is originally estimated using the input data and model function with data up to <code>estimation_end</code> minus the the number of periods specified in <code>estimation_window</code>. If <code>estimation_window</code> is left <code>NULL</code> then the model is estimated with all available data up to <code>estimation_end</code>. Model parameters are then combined with realized values of the input data <code>h_ahead</code> periods ahead to generate an <code>h_ahead</code> period ahead forecast. This process is iteratively repeated for each period after <code>estimation_end</code> with model parameters updating in each period.</p>
 <p>In the sample <em>i</em>, for each period <em>p</em> greater than or equal to <code>estimation_end</code>, coefficients are updated as:</p>
 <p><span class="math display">\[
 Y_i = \text{model_function}(X_i)
@@ -500,7 +504,7 @@ forecast_{p+h} = \beta_0 + \beta_1 VF1_p + \beta_2 VF2_p \qquad
 </div>
 <div id="oos_vintage_forc_general-1" class="section level2">
 <h2>oos_vintage_forc_general</h2>
-<p>The <code>oos_vintage_forc_general()</code> function produces an out-of-sample forecast conditioned on <em>h</em> period ahead forecasts of the model parameters. The function takes a model function, prediction function, input data for estimating the model, realized values of the dependent variable, a vector of time data associated with the model, a forecast for each parameter in the model, and an optional integer number of past periods to estimate the model over. For each period in the vintage forecasts, model parameteres are estimated with data up to the current period minus the number of periods specified in . If  is left  then the model is estimated with all available data up to the current period. Model parameters are then combined with vintage forecast values to generate a forecast. <em>Note</em> that  input to the  takes the form of a data.frame with a number of columns equal to the number of input vintage forecasts and the  needs to be able adapted to take this input format and generate a forecast based on it. Returns an out-of-sample forecast conditional on vintage forecasts that <strong>would</strong> have been available at the forecast origin. Replicates the forecasts that a conditional forecasting model would have produced in real time.</p>
+<p>The <code>oos_vintage_forc_general()</code> function produces an out-of-sample forecast conditioned on <em>h</em> period ahead forecasts of the model parameters. The function takes a model function, prediction function, input data for estimating the model, realized values of the dependent variable, a vector of time data associated with the model, a forecast for each parameter in the model, and an optional integer number of past periods to estimate the model over. For each period in the vintage forecasts, model parameteres are estimated with data up to the current period minus the number of periods specified in <code>estimation_window</code>. If <code>estimation_window</code> is left <code>NULL</code> then the model is estimated with all available data up to the current period. Model parameters are then combined with vintage forecast values to generate a forecast. <em>Note</em> that <code>data</code> input to the <code>prediction_function</code> takes the form of a data.frame with a number of columns equal to the number of input vintage forecasts and the <code>prediction_function</code> needs to be able adapted to take this input format and generate a forecast based on it. Returns an out-of-sample forecast conditional on vintage forecasts that <strong>would</strong> have been available at the forecast origin. Replicates the forecasts that a conditional forecasting model would have produced in real time.</p>
 <p>In the sample <em>i</em>, for each period <em>p</em> in the vintage forecasts <em>VF1</em> and <em>VF2</em>, coefficients are updated as:</p>
 <p><span class="math display">\[
 Y_i = \text{model_function}(X_i)
