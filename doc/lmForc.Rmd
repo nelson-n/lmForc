@@ -25,9 +25,6 @@ library(lmForc)
 ## Sections
 
 #### [Forecast Class]
-
-<br>
-
 #### [is_forc]
 #### [is_forc_general]
 #### [oos_realized_forc]
@@ -475,13 +472,13 @@ on *h* period ahead forecasts of the model parameters. The function takes
 a model function, prediction function, input data for estimating the model, realized values
 of the dependent variable, a vector of time data associated with the model, a forecast for
 each parameter in the model, and an optional integer number of past periods to estimate the
-model over. For each period in the vintage forecasts, model parameteres are estimated with
+model over. For each period in the vintage forecasts, model parameters are estimated with
 data up to the current period minus the number of periods specified in `estimation_window`.
 If `estimation_window` is left `NULL` then the model is estimated with all available
 data up to the current period. Model parameters are then combined with vintage forecast values
 to generate a forecast. *Note* that `data` input to the `prediction_function` takes
 the form of a data.frame with a number of columns equal to the number of input vintage forecasts
-and the `prediction_function` needs to be able adapted to take this input format and generate
+and the `prediction_function` needs to be able to take this input format and generate
 a forecast based on it. Returns an out-of-sample forecast conditional on vintage forecasts that
 **would** have been available at the forecast origin. Replicates the forecasts that a conditional
 forecasting model would have produced in real time.
@@ -538,7 +535,7 @@ oos_vintage_forc_general(
 )
 ```
 
-*Note* that in the example above the \code{prediction_function} is adapted to take a specific data.frame
+*Note* that in the example above the `prediction_function` is adapted to take a specific data.frame
 as input and generate a forecast based on it. The form of this specific data.frame is printed to 
 the console for reference. This test replicates the forecasts that a model conditional on forecasts 
 of the model parameters would have produced in real-time. Here we see the strength of the
@@ -1051,7 +1048,7 @@ The Forecast class comes with a built in method for subsetting a single Forecast
 However, one often ends up working with multiple Forecast objects. Examples
 include working with different model forecasts for the same forecast horizon, one model forecast for varying forecast horizons, or both. The lmForc convention for working with multiple Forecast objects is to put them into a list. The following functions provide a way to subset lists of Forecast objects by various conditions.
 
-#### Subsetting Example Dataset
+### Subsetting Example Dataset
 
 Examples of lmForc subsetting functions utilize the following stylized dataset. 
 This example dataset contains one-quarter ahead forecasts produced by two different
@@ -1127,7 +1124,7 @@ Forecasts are often produced for multiple `h_ahead` horizons into the future. Fo
 example, a model may produce a 1-quarter ahead, 2-quarter ahead, 3-quarter ahead,
 and 4-quarter ahead forecast during each quarter of the year. In this example, multiple Forecast objects are needed to capture the forecast made during each quarter. As per lmForc convention, one would work with these forecasts by putting them into a list. When working with list of forecasts for multiple `h_ahead` horizons into the future, there are two general formats in which the forecasts can be organized. These two formats are: **Time Format** and **h_ahead Format**.
 
-#### Time Format
+### Time Format
 
 **Time Format** consists of a list of Forecast objects where each forecast has
 homogenous `origin` or `future` values. Each Forecast object in the list was made at the 
