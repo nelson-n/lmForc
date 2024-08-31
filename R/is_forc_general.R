@@ -32,7 +32,9 @@
 #' 
 #' is_forc_general(
 #'   model_function = function(data) {glm(y ~ x1 + x2, data = data, family = binomial)},
-#'   prediction_function = function(model_function, data) {as.vector(predict(model_function, data, type = "response"))}, 
+#'   prediction_function = function(model_function, data) {
+#'       as.vector(predict(model_function, data, type = "response"))
+#'   }, 
 #'   data = dataLogit,
 #'   realized = dataLogit$y,
 #'   time_vec = dataLogit$date
@@ -48,7 +50,7 @@
 is_forc_general <- function(model_function, prediction_function, data, realized, time_vec) {
 
   # Input validation.
-  if (class(model_function) != "function") {
+  if (inherits(model_function, "function") == FALSE) {
     stop(paste0(
       "* model_function must be a function that estimates model parameters based on a data argument: \n",
       "model_function = function(data) {glm(y ~ x1 + x2, data = data, family = binomial)}"
@@ -62,7 +64,7 @@ is_forc_general <- function(model_function, prediction_function, data, realized,
     ))
   }
 
-  if (class(prediction_function) != "function") {
+  if (inherits(prediction_function, "function") == FALSE) {
     stop(paste0(
       "* prediction_function must be a function that generates model predictions based the model_function and data arguments: \n",
       "prediction_function = function(model, data) {as.vector(predict(model, data, type = 'response'))}"
@@ -90,7 +92,7 @@ is_forc_general <- function(model_function, prediction_function, data, realized,
   # Calculate in sample forecast based on the prediction_function, model_function, and data arguments.
   forecast <- prediction_function(model_function = model, data = data)
 
-  if (class(forecast) != "numeric") {
+  if (inherits(forecast, "numeric") == FALSE) {
     stop("* prediction_function must return a numeric vector")
   }
 

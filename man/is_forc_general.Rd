@@ -40,7 +40,9 @@ dataLogit <- data.frame(date, y, x1, x2)
 
 is_forc_general(
   model_function = function(data) {glm(y ~ x1 + x2, data = data, family = binomial)},
-  prediction_function = function(model_function, data) {as.vector(predict(model_function, data, type = "response"))}, 
+  prediction_function = function(model_function, data) {
+      as.vector(predict(model_function, data, type = "response"))
+  }, 
   data = dataLogit,
   realized = dataLogit$y,
   time_vec = dataLogit$date

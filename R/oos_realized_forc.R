@@ -67,7 +67,7 @@ oos_realized_forc <- function(lm_call, h_ahead, estimation_end, time_vec = NULL,
                               estimation_window = NULL, return_betas = FALSE) {
   
   # Input validation.
-  if (class(lm_call) != "lm") {
+  if (inherits(lm_call , "lm") == FALSE) {
     stop("* lm_call must be must be of the lm function form: lm_call = lm(y = x1 + x2, data)")
   }
   

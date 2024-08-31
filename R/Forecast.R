@@ -120,11 +120,11 @@ setValidity("Forecast", function(object) {
     "@origin, @future, @forecast, and @realized must be the same length"
   }
 
-  else if (class(object@forecast) != "numeric") {
+  else if (inherits(object@forecast, "numeric") == FALSE) {
     "@forecast must be a numeric object"
   }
 
-  else if (class(object@realized) != "numeric") {
+  else if (inherits(object@realized, "numeric") == FALSE) {
     "@realized must be a numeric object"
   }
 

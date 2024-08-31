@@ -65,13 +65,17 @@ date <- as.Date(c("2010-03-31", "2010-06-30", "2010-09-30", "2010-12-31",
                   "2012-03-31", "2012-06-30", "2012-09-30", "2012-12-31",
                   "2013-03-31", "2013-06-30", "2013-09-30", "2013-12-31"))
 y  <- c(1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0)
-x1 <- c(8.22, 3.86, 4.27, 3.37, 5.88, 3.34, 2.92, 1.80, 3.30, 7.17, 3.22, 3.86, 4.27, 3.37, 5.88, 3.34)
-x2 <- c(4.03, 2.46, 2.04, 2.44, 6.09, 2.91, 1.68, 2.91, 3.87, 1.63, 4.03, 2.46, 2.04, 2.44, 6.09, 2.91)
+x1 <- c(8.22, 3.86, 4.27, 3.37, 5.88, 3.34, 2.92, 1.80, 3.30, 7.17, 3.22, 3.86, 
+    4.27, 3.37, 5.88, 3.34)
+x2 <- c(4.03, 2.46, 2.04, 2.44, 6.09, 2.91, 1.68, 2.91, 3.87, 1.63, 4.03, 2.46, 
+    2.04, 2.44, 6.09, 2.91)
 dataLogit <- data.frame(date, y, x1, x2)
 
 forc <- oos_realized_forc_general(
     model_function = function(data) {glm(y ~ x1 + x2, data = data, family = binomial)},
-    prediction_function = function(model_function, data) {as.vector(predict(model_function, data, type = "response"))}, 
+    prediction_function = function(model_function, data) {
+        as.vector(predict(model_function, data, type = "response"))
+    }, 
     data = dataLogit,
     realized = dataLogit$y,
     h_ahead = 2L,

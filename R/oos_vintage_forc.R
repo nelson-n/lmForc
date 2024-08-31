@@ -84,7 +84,7 @@ oos_vintage_forc <- function(lm_call, time_vec, ..., estimation_window = NULL, r
   num_coefs <- length(lm_call$coefficients)
 
   # Input validation.
-  if (class(lm_call) != "lm") {
+  if (inherits(lm_call , "lm") == FALSE) {
     stop("* lm_call must be must be of the lm function form: lm_call = lm(y = x1 + x2, data)")
   }
 

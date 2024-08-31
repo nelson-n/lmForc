@@ -45,13 +45,17 @@
 #'                   "2012-03-31", "2012-06-30", "2012-09-30", "2012-12-31",
 #'                   "2013-03-31", "2013-06-30", "2013-09-30", "2013-12-31"))
 #' y  <- c(1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0)
-#' x1 <- c(8.22, 3.86, 4.27, 3.37, 5.88, 3.34, 2.92, 1.80, 3.30, 7.17, 3.22, 3.86, 4.27, 3.37, 5.88, 3.34)
-#' x2 <- c(4.03, 2.46, 2.04, 2.44, 6.09, 2.91, 1.68, 2.91, 3.87, 1.63, 4.03, 2.46, 2.04, 2.44, 6.09, 2.91)
+#' x1 <- c(8.22, 3.86, 4.27, 3.37, 5.88, 3.34, 2.92, 1.80, 3.30, 7.17, 3.22, 3.86, 
+#'     4.27, 3.37, 5.88, 3.34)
+#' x2 <- c(4.03, 2.46, 2.04, 2.44, 6.09, 2.91, 1.68, 2.91, 3.87, 1.63, 4.03, 2.46, 
+#'     2.04, 2.44, 6.09, 2.91)
 #' dataLogit <- data.frame(date, y, x1, x2)
 #'
 #' forc <- oos_realized_forc_general(
 #'     model_function = function(data) {glm(y ~ x1 + x2, data = data, family = binomial)},
-#'     prediction_function = function(model_function, data) {as.vector(predict(model_function, data, type = "response"))}, 
+#'     prediction_function = function(model_function, data) {
+#'         as.vector(predict(model_function, data, type = "response"))
+#'     }, 
 #'     data = dataLogit,
 #'     realized = dataLogit$y,
 #'     h_ahead = 2L,
@@ -71,7 +75,7 @@ oos_realized_forc_general <- function(model_function, prediction_function, data,
     realized, h_ahead, estimation_end, time_vec, estimation_window = NULL) {
 
   # Input validation.
-  if (class(model_function) != "function") {
+  if (inherits(model_function, "function") == FALSE) {
     stop(paste0(
       "* model_function must be a function that estimates model parameters based on a data argument: \n",
       "model_function = function(data) {glm(y ~ x1 + x2, data = data, family = binomial)}"
@@ -85,7 +89,7 @@ oos_realized_forc_general <- function(model_function, prediction_function, data,
     ))
   }
 
-  if (class(prediction_function) != "function") {
+  if (inherits(prediction_function, "function") == FALSE) {
     stop(paste0(
       "* prediction_function must be a function that generates model predictions based the model_function and data arguments: \n",
       "prediction_function = function(model, data) {as.vector(predict(model, data, type = 'response'))}"
